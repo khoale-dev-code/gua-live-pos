@@ -1,0 +1,4704 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+eslint.config.js
+index.html
+package.json
+public/favicon.svg
+public/icons.svg
+README.md
+src/App.css
+src/App.jsx
+src/assets/hero.png
+src/assets/react.svg
+src/assets/vite.svg
+src/features/products/ProductPageSections.jsx
+src/features/products/productUtils.js
+src/features/products/useProductImages.js
+src/features/products/useProductsController.js
+src/index.css
+src/lib/api.js
+src/lib/supabaseClient.js
+src/lib/uploadProductImage.js
+src/main.jsx
+src/pages/DashboardPage.jsx
+src/pages/LiveSalePage.jsx
+src/pages/LiveSessionsPage.jsx
+src/pages/OrdersPage.jsx
+src/pages/ProductsPage.jsx
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+])
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "@tailwindcss/vite": "^4.3.1",
+    "lucide-react": "^1.20.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.18.0",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "vite": "^8.0.12"
+  }
+}
+</file>
+
+<file path="public/favicon.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
+</file>
+
+<file path="public/icons.svg">
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="bluesky-icon" viewBox="0 0 16 17">
+    <g clip-path="url(#bluesky-clip)"><path fill="#08060d" d="M7.75 7.735c-.693-1.348-2.58-3.86-4.334-5.097-1.68-1.187-2.32-.981-2.74-.79C.188 2.065.1 2.812.1 3.251s.241 3.602.398 4.13c.52 1.744 2.367 2.333 4.07 2.145-2.495.37-4.71 1.278-1.805 4.512 3.196 3.309 4.38-.71 4.987-2.746.608 2.036 1.307 5.91 4.93 2.746 2.72-2.746.747-4.143-1.747-4.512 1.702.189 3.55-.4 4.07-2.145.156-.528.397-3.691.397-4.13s-.088-1.186-.575-1.406c-.42-.19-1.06-.395-2.741.79-1.755 1.24-3.64 3.752-4.334 5.099"/></g>
+    <defs><clipPath id="bluesky-clip"><path fill="#fff" d="M.1.85h15.3v15.3H.1z"/></clipPath></defs>
+  </symbol>
+  <symbol id="discord-icon" viewBox="0 0 20 19">
+    <path fill="#08060d" d="M16.224 3.768a14.5 14.5 0 0 0-3.67-1.153c-.158.286-.343.67-.47.976a13.5 13.5 0 0 0-4.067 0c-.128-.306-.317-.69-.476-.976A14.4 14.4 0 0 0 3.868 3.77C1.546 7.28.916 10.703 1.231 14.077a14.7 14.7 0 0 0 4.5 2.306q.545-.748.965-1.587a9.5 9.5 0 0 1-1.518-.74q.191-.14.372-.293c2.927 1.369 6.107 1.369 8.999 0q.183.152.372.294-.723.437-1.52.74.418.838.963 1.588a14.6 14.6 0 0 0 4.504-2.308c.37-3.911-.63-7.302-2.644-10.309m-9.13 8.234c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.894 0 1.614.82 1.599 1.82.001 1-.705 1.82-1.6 1.82m5.91 0c-.878 0-1.599-.82-1.599-1.82 0-.998.705-1.82 1.6-1.82.893 0 1.614.82 1.599 1.82 0 1-.706 1.82-1.6 1.82"/>
+  </symbol>
+  <symbol id="documentation-icon" viewBox="0 0 21 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="m15.5 13.333 1.533 1.322c.645.555.967.833.967 1.178s-.322.623-.967 1.179L15.5 18.333m-3.333-5-1.534 1.322c-.644.555-.966.833-.966 1.178s.322.623.966 1.179l1.534 1.321"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M17.167 10.836v-4.32c0-1.41 0-2.117-.224-2.68-.359-.906-1.118-1.621-2.08-1.96-.599-.21-1.349-.21-2.848-.21-2.623 0-3.935 0-4.983.369-1.684.591-3.013 1.842-3.641 3.428C3 6.449 3 7.684 3 10.154v2.122c0 2.558 0 3.838.706 4.726q.306.383.713.671c.76.536 1.79.64 3.581.66"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M3 10a2.78 2.78 0 0 1 2.778-2.778c.555 0 1.209.097 1.748-.047.48-.129.854-.503.982-.982.145-.54.048-1.194.048-1.749a2.78 2.78 0 0 1 2.777-2.777"/>
+  </symbol>
+  <symbol id="github-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M9.356 1.85C5.05 1.85 1.57 5.356 1.57 9.694a7.84 7.84 0 0 0 5.324 7.44c.387.079.528-.168.528-.376 0-.182-.013-.805-.013-1.454-2.165.467-2.616-.935-2.616-.935-.349-.91-.864-1.143-.864-1.143-.71-.48.051-.48.051-.48.787.051 1.2.805 1.2.805.695 1.194 1.817.857 2.268.649.064-.507.27-.857.49-1.052-1.728-.182-3.545-.857-3.545-3.87 0-.857.31-1.558.8-2.104-.078-.195-.349-1 .077-2.078 0 0 .657-.208 2.14.805a7.5 7.5 0 0 1 1.946-.26c.657 0 1.328.092 1.946.26 1.483-1.013 2.14-.805 2.14-.805.426 1.078.155 1.883.078 2.078.502.546.799 1.247.799 2.104 0 3.013-1.818 3.675-3.558 3.87.284.247.528.714.528 1.454 0 1.052-.012 1.896-.012 2.156 0 .208.142.455.528.377a7.84 7.84 0 0 0 5.324-7.441c.013-4.338-3.48-7.844-7.773-7.844" clip-rule="evenodd"/>
+  </symbol>
+  <symbol id="social-icon" viewBox="0 0 20 20">
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M12.5 6.667a4.167 4.167 0 1 0-8.334 0 4.167 4.167 0 0 0 8.334 0"/>
+    <path fill="none" stroke="#aa3bff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" d="M2.5 16.667a5.833 5.833 0 0 1 8.75-5.053m3.837.474.513 1.035c.07.144.257.282.414.309l.93.155c.596.1.736.536.307.965l-.723.73a.64.64 0 0 0-.152.531l.207.903c.164.715-.213.991-.84.618l-.872-.52a.63.63 0 0 0-.577 0l-.872.52c-.624.373-1.003.094-.84-.618l.207-.903a.64.64 0 0 0-.152-.532l-.723-.729c-.426-.43-.289-.864.306-.964l.93-.156a.64.64 0 0 0 .412-.31l.513-1.034c.28-.562.735-.562 1.012 0"/>
+  </symbol>
+  <symbol id="x-icon" viewBox="0 0 19 19">
+    <path fill="#08060d" fill-rule="evenodd" d="M1.893 1.98c.052.072 1.245 1.769 2.653 3.77l2.892 4.114c.183.261.333.48.333.486s-.068.089-.152.183l-.522.593-.765.867-3.597 4.087c-.375.426-.734.834-.798.905a1 1 0 0 0-.118.148c0 .01.236.017.664.017h.663l.729-.83c.4-.457.796-.906.879-.999a692 692 0 0 0 1.794-2.038c.034-.037.301-.34.594-.675l.551-.624.345-.392a7 7 0 0 1 .34-.374c.006 0 .93 1.306 2.052 2.903l2.084 2.965.045.063h2.275c1.87 0 2.273-.003 2.266-.021-.008-.02-1.098-1.572-3.894-5.547-2.013-2.862-2.28-3.246-2.273-3.266.008-.019.282-.332 2.085-2.38l2-2.274 1.567-1.782c.022-.028-.016-.03-.65-.03h-.674l-.3.342a871 871 0 0 1-1.782 2.025c-.067.075-.405.458-.75.852a100 100 0 0 1-.803.91c-.148.172-.299.344-.99 1.127-.304.343-.32.358-.345.327-.015-.019-.904-1.282-1.976-2.808L6.365 1.85H1.8zm1.782.91 8.078 11.294c.772 1.08 1.413 1.973 1.425 1.984.016.017.241.02 1.05.017l1.03-.004-2.694-3.766L7.796 5.75 5.722 2.852l-1.039-.004-1.039-.004z" clip-rule="evenodd"/>
+  </symbol>
+</svg>
+</file>
+
+<file path="README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="src/App.css">
+.counter {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.hero {
+  position: relative;
+
+  .base,
+  .framework,
+  .vite {
+    inset-inline: 0;
+    margin: 0 auto;
+  }
+
+  .base {
+    width: 170px;
+    position: relative;
+    z-index: 0;
+  }
+
+  .framework,
+  .vite {
+    position: absolute;
+  }
+
+  .framework {
+    z-index: 1;
+    top: 34px;
+    height: 28px;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
+      scale(1.4);
+  }
+
+  .vite {
+    z-index: 0;
+    top: 107px;
+    height: 26px;
+    width: auto;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
+      scale(0.8);
+  }
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 32px 20px 24px;
+    gap: 18px;
+  }
+}
+
+#next-steps {
+  display: flex;
+  border-top: 1px solid var(--border);
+  text-align: left;
+
+  & > div {
+    flex: 1 1 0;
+    padding: 32px;
+    @media (max-width: 1024px) {
+      padding: 24px 20px;
+    }
+  }
+
+  .icon {
+    margin-bottom: 16px;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#docs {
+  border-right: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+#next-steps ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  margin: 32px 0 0;
+
+  .logo {
+    height: 18px;
+  }
+
+  a {
+    color: var(--text-h);
+    font-size: 16px;
+    border-radius: 6px;
+    background: var(--social-bg);
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+    .button-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    a {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+}
+
+#spacer {
+  height: 88px;
+  border-top: 1px solid var(--border);
+  @media (max-width: 1024px) {
+    height: 48px;
+  }
+}
+
+.ticks {
+  position: relative;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4.5px;
+    border: 5px solid transparent;
+  }
+
+  &::before {
+    left: 0;
+    border-left-color: var(--border);
+  }
+  &::after {
+    right: 0;
+    border-right-color: var(--border);
+  }
+}
+</file>
+
+<file path="src/App.jsx">
+import { useEffect, useMemo, useState } from "react";
+import { NavLink, Route, Routes, useLocation } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  LayoutDashboard,
+  Leaf,
+  Menu,
+  Radio,
+  ShoppingCart,
+  Sparkles,
+  X,
+} from "lucide-react";
+import ProductsPage from "./pages/ProductsPage";
+import LiveSessionsPage from "./pages/LiveSessionsPage";
+import LiveSalePage from "./pages/LiveSalePage";
+
+function DashboardPage() {
+  return (
+    <div className="mx-auto w-full max-w-7xl">
+      <div className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-green-50 ring-1 ring-white/20">
+          <Sparkles size={14} />
+          Tổng quan hôm nay
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-4xl">
+          Dashboard
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-green-50/85 sm:text-base">
+          Tổng quan comment livestream, đơn hàng, tồn kho và doanh thu trong ngày.
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-[1.5rem] border border-white/70 bg-white/90 p-5 shadow-sm backdrop-blur">
+          <p className="text-sm text-slate-500">Comment chưa xử lý</p>
+          <p className="mt-2 text-3xl font-black text-slate-950">0</p>
+        </div>
+
+        <div className="rounded-[1.5rem] border border-white/70 bg-white/90 p-5 shadow-sm backdrop-blur">
+          <p className="text-sm text-slate-500">Đơn hôm nay</p>
+          <p className="mt-2 text-3xl font-black text-slate-950">0</p>
+        </div>
+
+        <div className="rounded-[1.5rem] border border-white/70 bg-white/90 p-5 shadow-sm backdrop-blur sm:col-span-2 xl:col-span-1">
+          <p className="text-sm text-slate-500">Doanh thu hôm nay</p>
+          <p className="mt-2 text-3xl font-black text-slate-950">0đ</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OrdersPage() {
+  return (
+    <div className="mx-auto w-full max-w-7xl">
+      <div className="rounded-[2rem] border border-white/70 bg-white/90 p-5 shadow-sm backdrop-blur sm:p-7">
+        <h2 className="text-xl font-black text-slate-950 sm:text-3xl">
+          Đơn hàng
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+          Quản lý đơn mới, đơn đã in, đơn đã giao và đơn hủy.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ item, collapsed = false, onClick }) {
+  const Icon = item.icon;
+
+  return (
+    <NavLink
+      to={item.to}
+      end={item.to === "/"}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold transition ${
+          isActive
+            ? "bg-white text-green-800 shadow-sm"
+            : "text-green-50/85 hover:bg-white/10 hover:text-white"
+        } ${collapsed ? "justify-center" : ""}`
+      }
+    >
+      <Icon size={20} className="shrink-0" />
+      {!collapsed && <span className="truncate">{item.label}</span>}
+    </NavLink>
+  );
+}
+
+function MobileNavItem({ item, onClick }) {
+  const Icon = item.icon;
+
+  return (
+    <NavLink
+      to={item.to}
+      end={item.to === "/"}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+          isActive
+            ? "bg-green-700 text-white shadow-sm"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+        }`
+      }
+    >
+      <Icon size={19} />
+      {item.label}
+    </NavLink>
+  );
+}
+
+function AppLayout({ children }) {
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+
+  const navItems = useMemo(
+    () => [
+      {
+        to: "/",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        to: "/products",
+        label: "Sản phẩm",
+        icon: Leaf,
+      },
+      {
+        to: "/live",
+        label: "Phiên live",
+        icon: Radio,
+      },
+      {
+        to: "/orders",
+        label: "Đơn hàng",
+        icon: ShoppingCart,
+      },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dcfce7,transparent_32%),linear-gradient(to_bottom,#f8fafc,#eef2f7)]">
+      <aside
+        className={`fixed left-0 top-0 z-40 hidden h-screen border-r border-white/10 bg-green-900 text-white shadow-xl transition-all duration-300 lg:block ${
+          desktopCollapsed ? "w-20" : "w-72"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div
+            className={`flex items-center border-b border-white/10 p-4 ${
+              desktopCollapsed ? "justify-center" : "justify-between"
+            }`}
+          >
+            {!desktopCollapsed && (
+              <div>
+                <h1 className="text-xl font-black tracking-tight">
+                  GUA Live POS
+                </h1>
+                <p className="mt-1 text-xs text-green-50/70">
+                  Orchid & Garden Sale
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setDesktopCollapsed((prev) => !prev)}
+              className="rounded-2xl bg-white/10 p-2 text-green-50 transition hover:bg-white/20"
+              title={desktopCollapsed ? "Mở rộng menu" : "Thu gọn menu"}
+            >
+              {desktopCollapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
+            </button>
+          </div>
+
+          <nav className="flex-1 space-y-2 p-3">
+            {navItems.map((item) => (
+              <NavItem
+                key={item.to}
+                item={item}
+                collapsed={desktopCollapsed}
+              />
+            ))}
+          </nav>
+
+          <div className="p-3">
+            <div
+              className={`rounded-3xl bg-white/10 p-4 ring-1 ring-white/10 ${
+                desktopCollapsed ? "hidden" : "block"
+              }`}
+            >
+              <p className="text-sm font-bold">Bán live nhanh hơn</p>
+              <p className="mt-1 text-xs leading-5 text-green-50/70">
+                Quản lý sản phẩm, comment, đơn hàng và in đơn trong một hệ thống.
+              </p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <header className="sticky top-0 z-30 border-b border-white/70 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-xl lg:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="rounded-2xl bg-green-700 p-2.5 text-white shadow-sm"
+            aria-label="Mở menu"
+          >
+            <Menu size={21} />
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-base font-black text-green-800">
+              GUA Live POS
+            </h1>
+            <p className="truncate text-xs text-slate-500">
+              Quản lý bán live cây cảnh / hoa lan
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Đóng menu"
+          />
+
+          <aside className="absolute left-0 top-0 h-full w-[86%] max-w-sm overflow-y-auto bg-white p-4 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black text-green-800">
+                  GUA Live POS
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Orchid & Garden Sale
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-2xl bg-slate-100 p-2 text-slate-700"
+                aria-label="Đóng menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <nav className="mt-6 space-y-2">
+              {navItems.map((item) => (
+                <MobileNavItem
+                  key={item.to}
+                  item={item}
+                  onClick={() => setMobileOpen(false)}
+                />
+              ))}
+            </nav>
+
+            <div className="mt-6 rounded-[1.5rem] bg-green-50 p-4 text-green-900">
+              <p className="text-sm font-black">Mẹo sử dụng</p>
+              <p className="mt-1 text-xs leading-5 text-green-800/80">
+                Trên điện thoại, dùng menu này để chuyển nhanh giữa sản phẩm,
+                phiên live và đơn hàng.
+              </p>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      <main
+        className={`min-h-screen p-4 transition-all duration-300 sm:p-6 ${
+          desktopCollapsed ? "lg:ml-20" : "lg:ml-72"
+        }`}
+      >
+        {children}
+      </main>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppLayout>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/live" element={<LiveSessionsPage />} />
+        <Route path="/live/:sessionId" element={<LiveSalePage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+      </Routes>
+    </AppLayout>
+  );
+}
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/assets/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="77" height="47" fill="none" aria-labelledby="vite-logo-title" viewBox="0 0 77 47"><title id="vite-logo-title">Vite</title><style>.parenthesis{fill:#000}@media (prefers-color-scheme:dark){.parenthesis{fill:#fff}}</style><path fill="#9135ff" d="M40.151 45.71c-.663.844-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.493c-.92 0-1.457-1.04-.92-1.788l7.479-10.471c1.07-1.498 0-3.578-1.842-3.578H15.443c-.92 0-1.456-1.04-.92-1.788l9.696-13.576c.213-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.472c-1.07 1.497 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.087.89 1.83L40.153 45.712z"/><mask id="a" width="48" height="47" x="14" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M40.047 45.71c-.663.843-2.02.374-2.02-.699V34.708a2.26 2.26 0 0 0-2.262-2.262H24.389c-.92 0-1.457-1.04-.92-1.788l7.479-10.472c1.07-1.497 0-3.578-1.842-3.578H15.34c-.92 0-1.456-1.04-.92-1.788l9.696-13.575c.213-.297.556-.474.92-.474H53.93c.92 0 1.456 1.04.92 1.788L47.37 13.03c-1.07 1.498 0 3.578 1.842 3.578h11.376c.944 0 1.474 1.088.89 1.831L40.049 45.712z"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#eee6ff" rx="5.508" ry="14.704" transform="rotate(269.814 20.96 11.29)scale(-1 1)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#eee6ff" rx="10.399" ry="29.851" transform="rotate(89.814 -16.902 -8.275)scale(1 -1)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#8900ff" rx="5.508" ry="30.487" transform="rotate(89.814 -19.197 -7.127)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.928 4.177)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#8900ff" rx="5.508" ry="30.599" transform="rotate(89.814 -25.738 5.52)scale(1 -1)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#eee6ff" rx="14.072" ry="22.078" transform="rotate(93.35 31.245 55.578)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#8900ff" rx="3.47" ry="21.501" transform="rotate(89.009 35.419 55.202)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx="14.592" cy="9.743" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(39.51 14.592 9.743)"/></g><g filter="url(#k)"><ellipse cx="61.728" cy="-5.321" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 61.728 -5.32)"/></g><g filter="url(#l)"><ellipse cx="55.618" cy="7.104" fill="#00c2ff" rx="5.971" ry="9.665" transform="rotate(37.892 55.618 7.104)"/></g><g filter="url(#m)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#n)"><ellipse cx="12.326" cy="39.103" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 12.326 39.103)"/></g><g filter="url(#o)"><ellipse cx="49.857" cy="30.678" fill="#8900ff" rx="4.407" ry="29.108" transform="rotate(37.892 49.857 30.678)"/></g><g filter="url(#p)"><ellipse cx="52.623" cy="33.171" fill="#00c2ff" rx="5.971" ry="15.297" transform="rotate(37.892 52.623 33.17)"/></g></g><path d="M6.919 0c-9.198 13.166-9.252 33.575 0 46.789h6.215c-9.25-13.214-9.196-33.623 0-46.789zm62.424 0h-6.215c9.198 13.166 9.252 33.575 0 46.789h6.215c9.25-13.214 9.196-33.623 0-46.789" class="parenthesis"/><defs><filter id="b" width="60.045" height="41.654" x="-5.564" y="16.92" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-40.407" y="-6.762" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-35.435" y="2.801" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-30.84" y="20.8" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-29.307" y="21.949" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="29.961" y="-17.13" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="37.754" y="3.055" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-13.43" y="-22.082" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="34.321" y="-37.644" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="38.847" y="-10.552" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-15.081" y="6.78" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="22.45" y="-1.645" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="32.919" y="11.36" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17286" stdDeviation="4.596"/></filter></defs></svg>
+</file>
+
+<file path="src/features/products/ProductPageSections.jsx">
+import {
+  BadgeDollarSign,
+  Boxes,
+  Camera,
+  ChevronDown,
+  Filter,
+  ImagePlus,
+  Leaf,
+  Loader2,
+  PackagePlus,
+  Pencil,
+  Plus,
+  Save,
+  Search,
+  Tags,
+  Trash2,
+  UploadCloud,
+  X,
+} from "lucide-react";
+import { formatCurrency, normalizeProductImages } from "./productUtils";
+
+export function ProductsHero({ stats }) {
+  return (
+    <section className="overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+      <div className="max-w-3xl">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-green-50 ring-1 ring-white/20">
+          <Leaf size={14} />
+          GUA Live POS
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-4xl">
+          Quản lý sản phẩm
+        </h2>
+
+        <p className="mt-3 text-sm leading-6 text-green-50/85 sm:text-base">
+          Bố cục một cột, dễ thao tác trên điện thoại. Quản lý cây cảnh, hoa
+          lan, hình ảnh, tồn kho và danh mục để chốt đơn livestream nhanh hơn.
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <HeroStat label="Sản phẩm" value={stats.totalProducts} />
+        <HeroStat label="Danh mục" value={stats.totalCategories} />
+        <HeroStat label="Tồn kho" value={stats.totalStock} />
+      </div>
+    </section>
+  );
+}
+
+function HeroStat({ label, value }) {
+  return (
+    <div className="rounded-2xl bg-white/12 p-4 ring-1 ring-white/15 backdrop-blur">
+      <p className="text-xs text-green-50/80">{label}</p>
+      <p className="mt-1 text-2xl font-black">{value}</p>
+    </div>
+  );
+}
+
+export function OverviewSection({ stats }) {
+  return (
+    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <StatCard
+        icon={Leaf}
+        label="Tổng sản phẩm"
+        value={stats.totalProducts}
+      />
+
+      <StatCard icon={Boxes} label="Tồn kho" value={stats.totalStock} />
+
+      <StatCard
+        icon={Tags}
+        label="Danh mục"
+        value={stats.totalCategories}
+      />
+
+      <StatCard
+        icon={BadgeDollarSign}
+        label="Giá trị kho"
+        value={formatCurrency(stats.inventoryValue)}
+      />
+    </section>
+  );
+}
+
+function StatCard({ icon: Icon, label, value }) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            {label}
+          </p>
+
+          <p className="mt-2 break-words text-2xl font-black text-slate-950">
+            {value}
+          </p>
+        </div>
+
+        <div className="shrink-0 rounded-2xl bg-green-50 p-3 text-green-700">
+          <Icon size={20} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SectionCard({
+  title,
+  description,
+  icon: Icon,
+  open,
+  onToggle,
+  children,
+}) {
+  return (
+    <section className="overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white shadow-sm">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-3 p-4 text-left sm:p-5"
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="shrink-0 rounded-2xl bg-green-50 p-2.5 text-green-700">
+            <Icon size={19} />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-black text-slate-950 sm:text-lg">
+              {title}
+            </h3>
+
+            {description && (
+              <p className="mt-1 text-sm leading-5 text-slate-500">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <ChevronDown
+          size={20}
+          className={`shrink-0 text-slate-400 transition ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {open && <div className="border-t border-slate-100 p-4 sm:p-5">{children}</div>}
+    </section>
+  );
+}
+
+export function CategorySection({
+  open,
+  onToggle,
+  categoryForm,
+  setCategoryForm,
+  categoryLoading,
+  categories,
+  handleCreateCategory,
+}) {
+  return (
+    <SectionCard
+      title="Danh mục sản phẩm"
+      description="Tạo nhóm như Hoa lan, Cây cảnh, Chậu cây, Vật tư..."
+      icon={Tags}
+      open={open}
+      onToggle={onToggle}
+    >
+      <form onSubmit={handleCreateCategory} className="space-y-3">
+        <input
+          className="input-clean"
+          placeholder="Tên danh mục"
+          value={categoryForm.name}
+          onChange={(event) =>
+            setCategoryForm({
+              ...categoryForm,
+              name: event.target.value,
+            })
+          }
+        />
+
+        <textarea
+          className="input-clean min-h-24 resize-none"
+          placeholder="Mô tả ngắn cho danh mục"
+          value={categoryForm.description}
+          onChange={(event) =>
+            setCategoryForm({
+              ...categoryForm,
+              description: event.target.value,
+            })
+          }
+        />
+
+        <button
+          disabled={categoryLoading}
+          className="button-dark w-full"
+        >
+          {categoryLoading ? (
+            <Loader2 size={17} className="animate-spin" />
+          ) : (
+            <Plus size={17} />
+          )}
+          {categoryLoading ? "Đang thêm..." : "Thêm danh mục"}
+        </button>
+      </form>
+
+      {categories.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <span
+              key={category.id}
+              className="rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700"
+            >
+              {category.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+export function ProductCreateSection({
+  open,
+  onToggle,
+  productForm,
+  setProductForm,
+  categories,
+  productLoading,
+  images,
+  handleCreateProduct,
+}) {
+  return (
+    <SectionCard
+      title="Thêm sản phẩm"
+      description="Hỗ trợ không ảnh, một ảnh hoặc nhiều ảnh."
+      icon={PackagePlus}
+      open={open}
+      onToggle={onToggle}
+    >
+      <form onSubmit={handleCreateProduct} className="space-y-3">
+        <input
+          className="input-clean"
+          placeholder="Mã sản phẩm, VD: LAN001"
+          value={productForm.code}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              code: event.target.value,
+            })
+          }
+        />
+
+        <input
+          className="input-clean"
+          placeholder="Tên sản phẩm"
+          value={productForm.name}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              name: event.target.value,
+            })
+          }
+        />
+
+        <select
+          className="input-clean"
+          value={productForm.category_id}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              category_id: event.target.value,
+            })
+          }
+        >
+          <option value="">Chọn danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+
+        <input
+          className="input-clean"
+          placeholder="Giá bán"
+          type="number"
+          min="0"
+          value={productForm.price}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              price: event.target.value,
+            })
+          }
+        />
+
+        <input
+          className="input-clean"
+          placeholder="Tồn kho"
+          type="number"
+          min="0"
+          value={productForm.stock}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              stock: event.target.value,
+            })
+          }
+        />
+
+        <ImagePicker
+          id="product-image-input"
+          inputRef={images.inputRef}
+          previewUrls={images.previewUrls}
+          onChange={images.setFromInput}
+          onRemove={images.removeAt}
+          onReset={images.reset}
+        />
+
+        <textarea
+          className="input-clean min-h-24 resize-none"
+          placeholder="Ghi chú: size chậu, tình trạng cây, màu hoa..."
+          value={productForm.note}
+          onChange={(event) =>
+            setProductForm({
+              ...productForm,
+              note: event.target.value,
+            })
+          }
+        />
+
+        <button disabled={productLoading} className="button-primary w-full">
+          {productLoading ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <Camera size={18} />
+          )}
+          {productLoading ? "Đang upload & thêm..." : "Thêm sản phẩm"}
+        </button>
+      </form>
+    </SectionCard>
+  );
+}
+
+export function ImagePicker({
+  id,
+  inputRef,
+  previewUrls,
+  onChange,
+  onRemove,
+  onReset,
+  helperText = "Có thể bỏ trống ảnh. Hỗ trợ JPG, PNG, WEBP, GIF.",
+}) {
+  return (
+    <div className="space-y-2">
+      <label
+        htmlFor={id}
+        className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-[1.25rem] border border-dashed border-slate-300 bg-slate-50 p-4 text-center transition hover:border-green-600 hover:bg-green-50"
+      >
+        {previewUrls.length > 0 ? (
+          <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3">
+            {previewUrls.map((url, index) => (
+              <div
+                key={url}
+                className="relative overflow-hidden rounded-2xl bg-white shadow-sm"
+              >
+                <img
+                  src={url}
+                  alt={`Ảnh sản phẩm ${index + 1}`}
+                  className="h-28 w-full object-cover"
+                />
+
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 rounded-full bg-green-700 px-2 py-1 text-[10px] font-bold text-white">
+                    Ảnh chính
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onRemove(index);
+                  }}
+                  className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <UploadCloud size={34} className="text-green-700" />
+            <p className="mt-3 text-sm font-black text-slate-800">
+              Bấm để chọn ảnh
+            </p>
+            <p className="mt-1 max-w-xs text-xs leading-5 text-slate-500">
+              {helperText}
+            </p>
+          </>
+        )}
+      </label>
+
+      <input
+        ref={inputRef}
+        id={id}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={onChange}
+      />
+
+      {previewUrls.length > 0 && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700"
+        >
+          Xóa tất cả ảnh đã chọn
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function ProductFiltersSection({
+  open,
+  onToggle,
+  searchText,
+  setSearchText,
+  selectedCategoryFilter,
+  setSelectedCategoryFilter,
+  categories,
+  total,
+  shown,
+}) {
+  return (
+    <SectionCard
+      title="Tìm kiếm & bộ lọc"
+      description={`Đang hiển thị ${shown}/${total} sản phẩm.`}
+      icon={Filter}
+      open={open}
+      onToggle={onToggle}
+    >
+      <div className="space-y-3">
+        <div className="relative">
+          <Search
+            size={17}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+
+          <input
+            className="input-clean pl-10"
+            placeholder="Tìm theo mã, tên, danh mục, ghi chú..."
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+          />
+        </div>
+
+        <select
+          className="input-clean"
+          value={selectedCategoryFilter}
+          onChange={(event) => setSelectedCategoryFilter(event.target.value)}
+        >
+          <option value="all">Tất cả danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </SectionCard>
+  );
+}
+
+export function ProductListSection({
+  open,
+  onToggle,
+  products,
+  pageLoading,
+  deleteLoadingId,
+  onEdit,
+  onDelete,
+}) {
+  return (
+    <SectionCard
+      title="Danh sách sản phẩm"
+      description="Hiển thị dạng card một cột, không dùng bảng để tránh tràn viền."
+      icon={Leaf}
+      open={open}
+      onToggle={onToggle}
+    >
+      {pageLoading ? (
+        <div className="flex min-h-56 items-center justify-center rounded-2xl bg-slate-50">
+          <div className="text-center">
+            <Loader2 className="mx-auto animate-spin text-green-700" />
+            <p className="mt-3 text-sm font-medium text-slate-500">
+              Đang tải dữ liệu...
+            </p>
+          </div>
+        </div>
+      ) : products.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="space-y-3">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              deleting={deleteLoadingId === product.id}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function ProductCard({ product, deleting, onEdit, onDelete }) {
+  const images = normalizeProductImages(product);
+
+  return (
+    <article className="overflow-hidden rounded-[1.25rem] border border-slate-100 bg-white p-3 shadow-sm">
+      <div className="flex gap-3">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-slate-400">
+              <ImagePlus size={24} />
+            </div>
+          )}
+
+          {images.length > 1 && (
+            <span className="absolute right-1.5 top-1.5 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">
+              +{images.length - 1}
+            </span>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-black text-green-700">
+              {product.code}
+            </span>
+
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+              {product.category_name || "Chưa phân loại"}
+            </span>
+          </div>
+
+          <h4 className="mt-2 break-words text-sm font-black leading-5 text-slate-950 sm:text-base">
+            {product.name}
+          </h4>
+
+          <div className="mt-3 space-y-2">
+            <InfoRow label="Giá bán" value={formatCurrency(product.price)} />
+            <InfoRow label="Tồn kho" value={product.stock} />
+          </div>
+
+          {product.note && (
+            <p className="mt-3 break-words rounded-2xl bg-slate-50 p-3 text-xs leading-5 text-slate-500">
+              {product.note}
+            </p>
+          )}
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => onEdit(product)}
+              className="flex items-center justify-center gap-1.5 rounded-2xl bg-slate-100 px-3 py-2.5 text-xs font-bold text-slate-700"
+            >
+              <Pencil size={14} />
+              Sửa
+            </button>
+
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={() => onDelete(product)}
+              className="flex items-center justify-center gap-1.5 rounded-2xl bg-red-50 px-3 py-2.5 text-xs font-bold text-red-600 disabled:opacity-60"
+            >
+              {deleting ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Trash2 size={14} />
+              )}
+              Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function InfoRow({ label, value }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="break-words text-right text-sm font-black text-slate-950">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+      <ImagePlus size={34} className="text-slate-400" />
+      <h3 className="mt-3 text-base font-black text-slate-950">
+        Chưa có sản phẩm phù hợp
+      </h3>
+      <p className="mt-1 max-w-sm text-sm text-slate-500">
+        Thêm sản phẩm mới hoặc đổi từ khóa tìm kiếm.
+      </p>
+    </div>
+  );
+}
+
+export function ProductEditSheet({
+  editingProduct,
+  editForm,
+  setEditForm,
+  categories,
+  editExistingImages,
+  removeExistingEditImage,
+  editImages,
+  editLoading,
+  onClose,
+  onSubmit,
+}) {
+  if (!editingProduct) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4">
+      <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-[1.75rem] bg-white p-4 shadow-2xl sm:max-w-2xl sm:rounded-[1.75rem] sm:p-6">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="min-w-0">
+            <h3 className="text-xl font-black text-slate-950">
+              Sửa sản phẩm
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Cập nhật thông tin, tồn kho và hình ảnh.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 rounded-full bg-slate-100 p-2 text-slate-600"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-5 space-y-3">
+          <input
+            className="input-clean"
+            placeholder="Mã sản phẩm"
+            value={editForm.code}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                code: event.target.value,
+              })
+            }
+          />
+
+          <input
+            className="input-clean"
+            placeholder="Tên sản phẩm"
+            value={editForm.name}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                name: event.target.value,
+              })
+            }
+          />
+
+          <select
+            className="input-clean"
+            value={editForm.category_id}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                category_id: event.target.value,
+              })
+            }
+          >
+            <option value="">Chọn danh mục</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            className="input-clean"
+            placeholder="Giá bán"
+            type="number"
+            min="0"
+            value={editForm.price}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                price: event.target.value,
+              })
+            }
+          />
+
+          <input
+            className="input-clean"
+            placeholder="Tồn kho"
+            type="number"
+            min="0"
+            value={editForm.stock}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                stock: event.target.value,
+              })
+            }
+          />
+
+          <ExistingImages
+            images={editExistingImages}
+            onRemove={removeExistingEditImage}
+          />
+
+          <ImagePicker
+            id="edit-product-image-input"
+            inputRef={editImages.inputRef}
+            previewUrls={editImages.previewUrls}
+            onChange={editImages.setFromInput}
+            onRemove={editImages.removeAt}
+            onReset={editImages.reset}
+            helperText="Ảnh mới sẽ được nối sau ảnh hiện tại."
+          />
+
+          <textarea
+            className="input-clean min-h-24 resize-none"
+            placeholder="Ghi chú"
+            value={editForm.note}
+            onChange={(event) =>
+              setEditForm({
+                ...editForm,
+                note: event.target.value,
+              })
+            }
+          />
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700"
+            >
+              Hủy
+            </button>
+
+            <button disabled={editLoading} className="button-primary">
+              {editLoading ? (
+                <Loader2 size={17} className="animate-spin" />
+              ) : (
+                <Save size={17} />
+              )}
+              {editLoading ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ExistingImages({ images, onRemove }) {
+  return (
+    <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-3">
+      <p className="text-sm font-black text-slate-800">Ảnh hiện tại</p>
+
+      {images.length > 0 ? (
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {images.map((image, index) => (
+            <div
+              key={image.id || image.image_url}
+              className="relative overflow-hidden rounded-2xl bg-white"
+            >
+              <img
+                src={image.image_url}
+                alt={`Ảnh hiện tại ${index + 1}`}
+                className="h-28 w-full object-cover"
+              />
+
+              {index === 0 && (
+                <span className="absolute left-2 top-2 rounded-full bg-green-700 px-2 py-1 text-[10px] font-bold text-white">
+                  Ảnh chính
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onRemove(index)}
+                className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-3 rounded-2xl bg-white p-5 text-center text-sm text-slate-500">
+          Sản phẩm hiện không có ảnh.
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/features/products/productUtils.js">
+export const DEFAULT_PRODUCT_FORM = {
+  code: "",
+  name: "",
+  category_id: "",
+  price: "",
+  stock: "",
+  note: "",
+};
+
+export const DEFAULT_CATEGORY_FORM = {
+  name: "",
+  description: "",
+};
+
+export function formatCurrency(value) {
+  return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+}
+
+export function normalizeProductImages(product) {
+  if (product?.images?.length > 0) {
+    return product.images
+      .filter((image) => image?.image_url)
+      .map((image, index) => ({
+        id: image.id || `${image.image_url}-${index}`,
+        image_url: image.image_url,
+        sort_order: image.sort_order || index,
+      }));
+  }
+
+  if (product?.image_url) {
+    return [
+      {
+        id: product.image_url,
+        image_url: product.image_url,
+        sort_order: 0,
+      },
+    ];
+  }
+
+  return [];
+}
+
+export function getProductStats(products = [], categories = []) {
+  const totalStock = products.reduce((total, product) => {
+    return total + Number(product.stock || 0);
+  }, 0);
+
+  const inventoryValue = products.reduce((total, product) => {
+    return total + Number(product.stock || 0) * Number(product.price || 0);
+  }, 0);
+
+  return {
+    totalProducts: products.length,
+    totalCategories: categories.length,
+    totalStock,
+    inventoryValue,
+  };
+}
+
+export function filterProducts(products = [], searchText = "", categoryId = "all") {
+  const keyword = searchText.trim().toLowerCase();
+
+  return products.filter((product) => {
+    const matchesKeyword =
+      !keyword ||
+      product.code?.toLowerCase().includes(keyword) ||
+      product.name?.toLowerCase().includes(keyword) ||
+      product.category_name?.toLowerCase().includes(keyword) ||
+      product.note?.toLowerCase().includes(keyword);
+
+    const matchesCategory =
+      categoryId === "all" || product.category_id === categoryId;
+
+    return matchesKeyword && matchesCategory;
+  });
+}
+</file>
+
+<file path="src/features/products/useProductImages.js">
+import { useEffect, useRef, useState } from "react";
+
+export function useProductImages() {
+  const inputRef = useRef(null);
+  const [files, setFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
+
+  useEffect(() => {
+    if (!files.length) {
+      setPreviewUrls([]);
+      return;
+    }
+
+    const objectUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(objectUrls);
+
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
+
+  function setFromInput(event) {
+    const selectedFiles = Array.from(event.target.files || []);
+    setFiles(selectedFiles);
+  }
+
+  function removeAt(indexToRemove) {
+    const nextFiles = files.filter((_, index) => index !== indexToRemove);
+    setFiles(nextFiles);
+
+    if (nextFiles.length === 0 && inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
+  function reset() {
+    setFiles([]);
+    setPreviewUrls([]);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
+  return {
+    inputRef,
+    files,
+    previewUrls,
+    setFiles,
+    setFromInput,
+    removeAt,
+    reset,
+  };
+}
+</file>
+
+<file path="src/features/products/useProductsController.js">
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../../lib/api";
+import { uploadProductImages } from "../../lib/uploadProductImage";
+import { useProductImages } from "./useProductImages";
+import {
+  DEFAULT_CATEGORY_FORM,
+  DEFAULT_PRODUCT_FORM,
+  filterProducts,
+  getProductStats,
+  normalizeProductImages,
+} from "./productUtils";
+
+export function useProductsController() {
+  const createImages = useProductImages();
+  const editImages = useProductImages();
+
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const [productForm, setProductForm] = useState(DEFAULT_PRODUCT_FORM);
+  const [categoryForm, setCategoryForm] = useState(DEFAULT_CATEGORY_FORM);
+
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("all");
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [productLoading, setProductLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editForm, setEditForm] = useState(DEFAULT_PRODUCT_FORM);
+  const [editExistingImages, setEditExistingImages] = useState([]);
+  const [editLoading, setEditLoading] = useState(false);
+
+  const [openSections, setOpenSections] = useState({
+    overview: true,
+    category: false,
+    create: true,
+    filters: true,
+    list: true,
+  });
+
+  const stats = useMemo(() => {
+    return getProductStats(products, categories);
+  }, [products, categories]);
+
+  const filteredProducts = useMemo(() => {
+    return filterProducts(products, searchText, selectedCategoryFilter);
+  }, [products, searchText, selectedCategoryFilter]);
+
+  function toggleSection(key) {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }
+
+  async function loadData() {
+    try {
+      setPageLoading(true);
+
+      const [categoryData, productData] = await Promise.all([
+        api.getCategories(),
+        api.getProducts(),
+      ]);
+
+      setCategories(categoryData || []);
+      setProducts(productData || []);
+    } catch (error) {
+      alert(error.message || "Không tải được dữ liệu sản phẩm");
+    } finally {
+      setPageLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function handleCreateCategory(event) {
+    event.preventDefault();
+
+    const name = categoryForm.name.trim();
+
+    if (!name) {
+      alert("Vui lòng nhập tên danh mục");
+      return;
+    }
+
+    try {
+      setCategoryLoading(true);
+
+      await api.createCategory({
+        name,
+        description: categoryForm.description.trim() || null,
+      });
+
+      setCategoryForm(DEFAULT_CATEGORY_FORM);
+      await loadData();
+    } catch (error) {
+      alert(error.message || "Không thêm được danh mục");
+    } finally {
+      setCategoryLoading(false);
+    }
+  }
+
+  async function handleCreateProduct(event) {
+    event.preventDefault();
+
+    if (!productForm.code.trim()) {
+      alert("Vui lòng nhập mã sản phẩm");
+      return;
+    }
+
+    if (!productForm.name.trim()) {
+      alert("Vui lòng nhập tên sản phẩm");
+      return;
+    }
+
+    if (!productForm.category_id) {
+      alert("Vui lòng chọn danh mục sản phẩm");
+      return;
+    }
+
+    try {
+      setProductLoading(true);
+
+      const uploadedImageUrls = createImages.files.length
+        ? await uploadProductImages(createImages.files)
+        : [];
+
+      await api.createProduct({
+        code: productForm.code.trim(),
+        name: productForm.name.trim(),
+        category_id: productForm.category_id,
+        price: Number(productForm.price || 0),
+        stock: Number(productForm.stock || 0),
+        image_url: uploadedImageUrls[0] || null,
+        image_urls: uploadedImageUrls,
+        note: productForm.note.trim() || null,
+      });
+
+      setProductForm(DEFAULT_PRODUCT_FORM);
+      createImages.reset();
+
+      await loadData();
+    } catch (error) {
+      alert(error.message || "Không thêm được sản phẩm");
+    } finally {
+      setProductLoading(false);
+    }
+  }
+
+  function openEditProduct(product) {
+    setEditingProduct(product);
+
+    setEditForm({
+      code: product.code || "",
+      name: product.name || "",
+      category_id: product.category_id || "",
+      price: String(product.price || ""),
+      stock: String(product.stock || ""),
+      note: product.note || "",
+    });
+
+    setEditExistingImages(normalizeProductImages(product));
+    editImages.reset();
+  }
+
+  function closeEditProduct() {
+    setEditingProduct(null);
+    setEditForm(DEFAULT_PRODUCT_FORM);
+    setEditExistingImages([]);
+    editImages.reset();
+  }
+
+  function removeExistingEditImage(indexToRemove) {
+    setEditExistingImages((prev) => {
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
+  }
+
+  async function handleUpdateProduct(event) {
+    event.preventDefault();
+
+    if (!editingProduct) return;
+
+    if (!editForm.code.trim()) {
+      alert("Vui lòng nhập mã sản phẩm");
+      return;
+    }
+
+    if (!editForm.name.trim()) {
+      alert("Vui lòng nhập tên sản phẩm");
+      return;
+    }
+
+    if (!editForm.category_id) {
+      alert("Vui lòng chọn danh mục sản phẩm");
+      return;
+    }
+
+    try {
+      setEditLoading(true);
+
+      const keptImageUrls = editExistingImages
+        .map((image) => image.image_url)
+        .filter(Boolean);
+
+      const newUploadedUrls = editImages.files.length
+        ? await uploadProductImages(editImages.files)
+        : [];
+
+      const finalImageUrls = [...keptImageUrls, ...newUploadedUrls];
+
+      await api.updateProduct(editingProduct.id, {
+        code: editForm.code.trim(),
+        name: editForm.name.trim(),
+        category_id: editForm.category_id,
+        price: Number(editForm.price || 0),
+        stock: Number(editForm.stock || 0),
+        image_url: finalImageUrls[0] || null,
+        image_urls: finalImageUrls,
+        note: editForm.note.trim() || null,
+      });
+
+      closeEditProduct();
+      await loadData();
+    } catch (error) {
+      alert(error.message || "Không cập nhật được sản phẩm");
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
+  async function handleDeleteProduct(product) {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa sản phẩm "${product.name}" không?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleteLoadingId(product.id);
+
+      await api.deleteProduct(product.id);
+      await loadData();
+    } catch (error) {
+      alert(error.message || "Không xóa được sản phẩm");
+    } finally {
+      setDeleteLoadingId(null);
+    }
+  }
+
+  return {
+    products,
+    categories,
+    stats,
+    filteredProducts,
+
+    productForm,
+    setProductForm,
+    categoryForm,
+    setCategoryForm,
+
+    searchText,
+    setSearchText,
+    selectedCategoryFilter,
+    setSelectedCategoryFilter,
+
+    pageLoading,
+    productLoading,
+    categoryLoading,
+    deleteLoadingId,
+
+    editingProduct,
+    editForm,
+    setEditForm,
+    editExistingImages,
+    editLoading,
+
+    createImages,
+    editImages,
+
+    openSections,
+    toggleSection,
+
+    handleCreateCategory,
+    handleCreateProduct,
+    openEditProduct,
+    closeEditProduct,
+    removeExistingEditImage,
+    handleUpdateProduct,
+    handleDeleteProduct,
+  };
+}
+</file>
+
+<file path="src/index.css">
+@import "tailwindcss";
+
+@layer components {
+  .input-clean {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:ring-4 focus:ring-green-100;
+  }
+
+  .button-primary {
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3 text-sm font-black text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .button-dark {
+    @apply flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+}
+</file>
+
+<file path="src/lib/api.js">
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+const memoryCache = new Map();
+const inflightRequests = new Map();
+
+const CACHE_PREFIX = "gua-live-pos-cache:";
+
+const CACHE_TTL = {
+  categories: 5 * 60 * 1000,
+  products: 2 * 60 * 1000,
+  liveSessions: 15 * 1000,
+  liveComments: 1500,
+  orders: 15 * 1000,
+  orderDetail: 15 * 1000,
+};
+
+function buildUrl(path) {
+  if (!path.startsWith("/")) {
+    return `${API_URL}/${path}`;
+  }
+
+  return `${API_URL}${path}`;
+}
+
+function getCacheKey(path) {
+  return `${CACHE_PREFIX}${path}`;
+}
+
+function now() {
+  return Date.now();
+}
+
+function isCacheFresh(entry) {
+  if (!entry) return false;
+  return entry.expiresAt > now();
+}
+
+function readSessionCache(path) {
+  try {
+    const raw = sessionStorage.getItem(getCacheKey(path));
+    if (!raw) return null;
+
+    const entry = JSON.parse(raw);
+
+    if (!isCacheFresh(entry)) {
+      sessionStorage.removeItem(getCacheKey(path));
+      return null;
+    }
+
+    return entry;
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionCache(path, entry) {
+  try {
+    sessionStorage.setItem(getCacheKey(path), JSON.stringify(entry));
+  } catch {
+    // Ignore storage quota/private mode errors
+  }
+}
+
+function writeCache(path, data, ttl = 0, persist = false) {
+  if (!ttl || ttl <= 0) return data;
+
+  const entry = {
+    data,
+    createdAt: now(),
+    expiresAt: now() + ttl,
+  };
+
+  memoryCache.set(path, entry);
+
+  if (persist) {
+    writeSessionCache(path, entry);
+  }
+
+  return data;
+}
+
+function readCache(path, persist = false) {
+  const memoryEntry = memoryCache.get(path);
+
+  if (isCacheFresh(memoryEntry)) {
+    return memoryEntry.data;
+  }
+
+  if (memoryEntry) {
+    memoryCache.delete(path);
+  }
+
+  if (persist) {
+    const sessionEntry = readSessionCache(path);
+
+    if (isCacheFresh(sessionEntry)) {
+      memoryCache.set(path, sessionEntry);
+      return sessionEntry.data;
+    }
+  }
+
+  return null;
+}
+
+function invalidateCache(match) {
+  const matcher =
+    typeof match === "function"
+      ? match
+      : (key) => key === match || key.startsWith(match);
+
+  for (const key of memoryCache.keys()) {
+    if (matcher(key)) {
+      memoryCache.delete(key);
+    }
+  }
+
+  try {
+    const keysToRemove = [];
+
+    for (let index = 0; index < sessionStorage.length; index += 1) {
+      const storageKey = sessionStorage.key(index);
+
+      if (!storageKey || !storageKey.startsWith(CACHE_PREFIX)) continue;
+
+      const apiPath = storageKey.replace(CACHE_PREFIX, "");
+
+      if (matcher(apiPath)) {
+        keysToRemove.push(storageKey);
+      }
+    }
+
+    keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function invalidateAllLiveData() {
+  invalidateCache("/api/live-sessions");
+}
+
+function invalidateAllOrdersData() {
+  invalidateCache("/api/orders");
+}
+
+function invalidateAllProductsData() {
+  invalidateCache("/api/products");
+}
+
+function invalidateAllCategoriesData() {
+  invalidateCache("/api/categories");
+}
+
+async function parseResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  return response.text();
+}
+
+async function request(path, options = {}) {
+  const {
+    timeout = 60000,
+    ...fetchOptions
+  } = options;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(buildUrl(path), {
+      ...fetchOptions,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(fetchOptions.headers || {}),
+      },
+    });
+
+    const data = await parseResponse(response);
+
+    if (!response.ok) {
+      const message =
+        data?.detail ||
+        data?.message ||
+        data?.error ||
+        (typeof data === "string" ? data : null) ||
+        "API error";
+
+      throw new Error(message);
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error(
+        "Request timeout. Backend phản hồi quá lâu, vui lòng kiểm tra backend hoặc thử tải lại."
+      );
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function cachedGet(path, config = {}) {
+  const {
+    ttl = 0,
+    persist = false,
+    force = false,
+    timeout = 60000,
+  } = config;
+
+  if (!force) {
+    const cachedData = readCache(path, persist);
+
+    if (cachedData !== null) {
+      return cachedData;
+    }
+  }
+
+  const inflightKey = `GET:${path}`;
+
+  if (inflightRequests.has(inflightKey)) {
+    return inflightRequests.get(inflightKey);
+  }
+
+  const promise = request(path, {
+    method: "GET",
+    timeout,
+  })
+    .then((data) => writeCache(path, data, ttl, persist))
+    .finally(() => {
+      inflightRequests.delete(inflightKey);
+    });
+
+  inflightRequests.set(inflightKey, promise);
+
+  return promise;
+}
+
+async function mutate(path, options = {}, invalidators = []) {
+  const data = await request(path, options);
+
+  invalidators.forEach((invalidate) => {
+    if (typeof invalidate === "function") {
+      invalidate(data);
+    } else {
+      invalidateCache(invalidate);
+    }
+  });
+
+  return data;
+}
+
+export const apiCache = {
+  clear: invalidateCache,
+  clearAll() {
+    memoryCache.clear();
+
+    try {
+      const keysToRemove = [];
+
+      for (let index = 0; index < sessionStorage.length; index += 1) {
+        const storageKey = sessionStorage.key(index);
+
+        if (storageKey?.startsWith(CACHE_PREFIX)) {
+          keysToRemove.push(storageKey);
+        }
+      }
+
+      keysToRemove.forEach((key) => sessionStorage.removeItem(key));
+    } catch {
+      // Ignore storage errors
+    }
+  },
+};
+
+export const api = {
+  healthCheck: () => request("/api/health"),
+
+  getCategories: (options = {}) =>
+    cachedGet("/api/categories", {
+      ttl: CACHE_TTL.categories,
+      persist: true,
+      ...options,
+    }),
+
+  createCategory: (data) =>
+    mutate(
+      "/api/categories",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllCategoriesData]
+    ),
+
+  updateCategory: (id, data) =>
+    mutate(
+      `/api/categories/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllCategoriesData]
+    ),
+
+  deleteCategory: (id) =>
+    mutate(
+      `/api/categories/${id}`,
+      {
+        method: "DELETE",
+      },
+      [invalidateAllCategoriesData]
+    ),
+
+  getProducts: (options = {}) =>
+    cachedGet("/api/products", {
+      ttl: CACHE_TTL.products,
+      persist: true,
+      ...options,
+    }),
+
+  createProduct: (data) =>
+    mutate(
+      "/api/products",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllProductsData, invalidateAllCategoriesData]
+    ),
+
+  updateProduct: (id, data) =>
+    mutate(
+      `/api/products/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllProductsData]
+    ),
+
+  deleteProduct: (id) =>
+    mutate(
+      `/api/products/${id}`,
+      {
+        method: "DELETE",
+      },
+      [invalidateAllProductsData]
+    ),
+
+  getLiveSessions: (options = {}) =>
+    cachedGet("/api/live-sessions", {
+      ttl: CACHE_TTL.liveSessions,
+      persist: false,
+      ...options,
+    }),
+
+  connectFacebookLive: (data = {}) =>
+    mutate(
+      "/api/live-sessions/connect/facebook",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        timeout: 90000,
+      },
+      [invalidateAllLiveData]
+    ),
+
+  connectTikTokLive: (data = {}) =>
+    mutate(
+      "/api/live-sessions/connect/tiktok",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        timeout: 90000,
+      },
+      [invalidateAllLiveData]
+    ),
+
+  endLiveSession: (id) =>
+    mutate(
+      `/api/live-sessions/${id}/end`,
+      {
+        method: "POST",
+      },
+      [invalidateAllLiveData, `/api/live-sessions/${id}/comments`]
+    ),
+
+  getLiveComments: (sessionId, options = {}) =>
+    cachedGet(`/api/live-sessions/${sessionId}/comments`, {
+      ttl: CACHE_TTL.liveComments,
+      persist: false,
+      timeout: 45000,
+      ...options,
+    }),
+
+  createManualComment: (data) =>
+    mutate(
+      "/api/live-comments/manual",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllLiveData]
+    ),
+
+  updateCommentStatus: (commentId, data) =>
+    mutate(
+      `/api/live-comments/${commentId}/status`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      [invalidateAllLiveData]
+    ),
+
+  getOrders: (options = {}) =>
+    cachedGet("/api/orders", {
+      ttl: CACHE_TTL.orders,
+      persist: false,
+      ...options,
+    }),
+
+  getOrderById: (id, options = {}) =>
+    cachedGet(`/api/orders/${id}`, {
+      ttl: CACHE_TTL.orderDetail,
+      persist: false,
+      ...options,
+    }),
+
+  createOrderFromComment: (data) =>
+    mutate(
+      "/api/orders/from-comment",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      [
+        invalidateAllOrdersData,
+        invalidateAllProductsData,
+        invalidateAllLiveData,
+      ]
+    ),
+
+  markOrderItemPrinted: (orderId, itemId) =>
+    mutate(
+      `/api/orders/${orderId}/items/${itemId}/print`,
+      {
+        method: "POST",
+      },
+      [`/api/orders/${orderId}`, invalidateAllOrdersData]
+    ),
+
+  updateOrderStatus: (id, data) =>
+    mutate(
+      `/api/orders/${id}/status`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      [`/api/orders/${id}`, invalidateAllOrdersData]
+    ),
+
+  deleteOrder: (id) =>
+    mutate(
+      `/api/orders/${id}`,
+      {
+        method: "DELETE",
+      },
+      [
+        `/api/orders/${id}`,
+        invalidateAllOrdersData,
+        invalidateAllProductsData,
+        invalidateAllLiveData,
+      ]
+    ),
+
+  refreshProducts: () =>
+    api.getProducts({
+      force: true,
+    }),
+
+  refreshCategories: () =>
+    api.getCategories({
+      force: true,
+    }),
+
+  refreshLiveSessions: () =>
+    api.getLiveSessions({
+      force: true,
+    }),
+
+  refreshLiveComments: (sessionId) =>
+    api.getLiveComments(sessionId, {
+      force: true,
+    }),
+
+  refreshOrders: () =>
+    api.getOrders({
+      force: true,
+    }),
+};
+</file>
+
+<file path="src/lib/supabaseClient.js">
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+if (!supabaseUrl) {
+  throw new Error("Missing VITE_SUPABASE_URL in frontend/.env");
+}
+
+if (!supabaseKey) {
+  throw new Error("Missing VITE_SUPABASE_PUBLISHABLE_KEY in frontend/.env");
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+</file>
+
+<file path="src/lib/uploadProductImage.js">
+import { supabase } from "./supabaseClient";
+
+const BUCKET_NAME = "product-images";
+const MAX_SIZE_MB = 5;
+
+function getFileExtension(fileName) {
+  return fileName.split(".").pop()?.toLowerCase() || "jpg";
+}
+
+function makeSafeFileName(fileName) {
+  const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+
+  return nameWithoutExt
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-_]/g, "");
+}
+
+export async function uploadProductImage(file) {
+  if (!file) return null;
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Chỉ hỗ trợ ảnh JPG, PNG, WEBP hoặc GIF");
+  }
+
+  const fileSizeMb = file.size / 1024 / 1024;
+
+  if (fileSizeMb > MAX_SIZE_MB) {
+    throw new Error(`Ảnh không được vượt quá ${MAX_SIZE_MB}MB`);
+  }
+
+  const ext = getFileExtension(file.name);
+  const safeName = makeSafeFileName(file.name);
+  const uniqueName = `${Date.now()}-${crypto.randomUUID()}-${safeName}.${ext}`;
+  const filePath = `products/${uniqueName}`;
+
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(error.message || "Upload ảnh thất bại");
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(data.path);
+
+  return publicUrlData.publicUrl;
+}
+
+export async function uploadProductImages(files = []) {
+  if (!files.length) return [];
+
+  const uploadedUrls = [];
+
+  for (const file of files) {
+    const url = await uploadProductImage(file);
+    if (url) uploadedUrls.push(url);
+  }
+
+  return uploadedUrls;
+}
+</file>
+
+<file path="src/main.jsx">
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App.jsx";
+import "./index.css";
+
+createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+</file>
+
+<file path="src/pages/DashboardPage.jsx">
+import { useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  Loader2,
+  Package,
+  Radio,
+  RefreshCcw,
+  ShoppingCart,
+  Tags,
+} from "lucide-react";
+import { api } from "../lib/api";
+
+function formatCurrency(value) {
+  return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+}
+
+export default function DashboardPage() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [liveSessions, setLiveSessions] = useState([]);
+  const [orders, setOrders] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const stats = useMemo(() => {
+    const activeProducts = products.filter((product) => product.is_active !== false);
+    const activeLives = liveSessions.filter(
+      (session) =>
+        session.status === "active" ||
+        session.connection_status === "connected" ||
+        session.connection_status === "connecting"
+    );
+
+    const validOrders = orders.filter((order) => order.status !== "cancelled");
+
+    return {
+      productCount: products.length,
+      activeProductCount: activeProducts.length,
+      categoryCount: categories.length,
+      liveCount: liveSessions.length,
+      activeLiveCount: activeLives.length,
+      orderCount: orders.length,
+      newOrderCount: orders.filter((order) => order.status === "new").length,
+      revenue: validOrders.reduce((sum, order) => sum + Number(order.total || 0), 0),
+      itemCount: orders.reduce((sum, order) => sum + Number(order.item_count || 0), 0),
+    };
+  }, [products, categories, liveSessions, orders]);
+
+  async function loadDashboard() {
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      // Force refresh để dashboard luôn thấy đơn vừa tạo từ comment.
+      const [productResult, categoryResult, liveResult, orderResult] =
+        await Promise.allSettled([
+          api.refreshProducts(),
+          api.refreshCategories(),
+          api.refreshLiveSessions(),
+          api.refreshOrders(),
+        ]);
+
+      if (productResult.status === "fulfilled") {
+        setProducts(Array.isArray(productResult.value) ? productResult.value : []);
+      }
+
+      if (categoryResult.status === "fulfilled") {
+        setCategories(Array.isArray(categoryResult.value) ? categoryResult.value : []);
+      }
+
+      if (liveResult.status === "fulfilled") {
+        setLiveSessions(Array.isArray(liveResult.value) ? liveResult.value : []);
+      }
+
+      if (orderResult.status === "fulfilled") {
+        setOrders(Array.isArray(orderResult.value) ? orderResult.value : []);
+      }
+
+      const firstError =
+        productResult.status === "rejected"
+          ? productResult.reason
+          : categoryResult.status === "rejected"
+            ? categoryResult.reason
+            : liveResult.status === "rejected"
+              ? liveResult.reason
+              : orderResult.status === "rejected"
+                ? orderResult.reason
+                : null;
+
+      if (firstError) {
+        setErrorMessage(firstError.message || "Một số dữ liệu dashboard tải lỗi.");
+      }
+    } catch (error) {
+      console.error("Không tải được dashboard:", error);
+      setErrorMessage(error.message || "Không tải được dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-4 sm:space-y-5">
+      <section className="rounded-[1.75rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+          <Activity size={14} />
+          Tổng quan hệ thống
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black sm:text-4xl">
+          Dashboard GUA Live POS
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-green-50/85">
+          Theo dõi nhanh sản phẩm, phiên live, đơn hàng và doanh thu từ bán
+          livestream.
+        </p>
+
+        <button
+          type="button"
+          onClick={loadDashboard}
+          className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-black text-green-800 transition hover:bg-green-50"
+        >
+          <RefreshCcw size={16} />
+          Tải lại dashboard
+        </button>
+      </section>
+
+      {errorMessage && (
+        <div className="rounded-2xl bg-red-50 p-4 text-sm font-semibold leading-6 text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex min-h-64 items-center justify-center rounded-[1.5rem] bg-white shadow-sm">
+          <div className="text-center">
+            <Loader2 className="mx-auto animate-spin text-green-700" />
+            <p className="mt-2 text-sm text-slate-500">
+              Đang tải dashboard...
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="rounded-2xl bg-green-50 p-3 text-green-700">
+                  <Package size={22} />
+                </div>
+
+                <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-black text-green-700">
+                  Sản phẩm
+                </span>
+              </div>
+
+              <p className="mt-4 text-3xl font-black text-slate-950">
+                {stats.productCount}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {stats.activeProductCount} đang bán
+              </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="rounded-2xl bg-blue-50 p-3 text-blue-700">
+                  <Tags size={22} />
+                </div>
+
+                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-black text-blue-700">
+                  Danh mục
+                </span>
+              </div>
+
+              <p className="mt-4 text-3xl font-black text-slate-950">
+                {stats.categoryCount}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Nhóm sản phẩm
+              </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="rounded-2xl bg-purple-50 p-3 text-purple-700">
+                  <Radio size={22} />
+                </div>
+
+                <span className="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-black text-purple-700">
+                  Phiên live
+                </span>
+              </div>
+
+              <p className="mt-4 text-3xl font-black text-slate-950">
+                {stats.liveCount}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {stats.activeLiveCount} đang hoạt động
+              </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="rounded-2xl bg-orange-50 p-3 text-orange-700">
+                  <ShoppingCart size={22} />
+                </div>
+
+                <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-black text-orange-700">
+                  Đơn hàng
+                </span>
+              </div>
+
+              <p className="mt-4 text-3xl font-black text-slate-950">
+                {stats.orderCount}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {stats.newOrderCount} đơn mới
+              </p>
+            </div>
+          </section>
+
+          <section className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <h3 className="text-lg font-black text-slate-950">
+                Doanh thu tạm tính
+              </h3>
+
+              <p className="mt-4 text-4xl font-black text-green-700">
+                {formatCurrency(stats.revenue)}
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Không tính đơn đã hủy.
+              </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <h3 className="text-lg font-black text-slate-950">
+                Số cây đã chốt
+              </h3>
+
+              <p className="mt-4 text-4xl font-black text-green-700">
+                {stats.itemCount}
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Tổng số dòng/cây trong các đơn hàng.
+              </p>
+            </div>
+          </section>
+
+          <section className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+            <h3 className="text-lg font-black text-slate-950">
+              Đơn hàng gần đây
+            </h3>
+
+            <div className="mt-4 space-y-3">
+              {orders.slice(0, 5).length === 0 ? (
+                <div className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+                  Chưa có đơn hàng nào.
+                </div>
+              ) : (
+                orders.slice(0, 5).map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-black text-slate-950">
+                        {order.order_code}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        {order.customer_name || "Khách chưa có tên"} ·{" "}
+                        {order.customer_phone || "Chưa có SĐT"}
+                      </p>
+                    </div>
+
+                    <p className="font-black text-green-700">
+                      {formatCurrency(order.total)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/pages/LiveSalePage.jsx">
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  CheckCircle2,
+  ExternalLink,
+  Loader2,
+  MessageCircle,
+  PackagePlus,
+  Plus,
+  Printer,
+  Radio,
+  RefreshCcw,
+  ShoppingCart,
+  X,
+} from "lucide-react";
+import { api } from "../lib/api";
+import { supabase } from "../lib/supabaseClient";
+
+const DEFAULT_SHIPPING_FEE = 30000;
+
+function formatCurrency(value) {
+  return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+}
+
+function extractPhone(text = "") {
+  const match = text.match(/(0|\+84)[0-9\s.-]{8,13}/);
+  return match ? match[0].replace(/\s|\.|-/g, "") : "";
+}
+
+function buildFacebookLink(comment) {
+  if (!comment?.customer_platform_id) return "";
+  return `https://www.facebook.com/${comment.customer_platform_id}`;
+}
+
+function printPlantSlip(order, item) {
+  const printWindow = window.open("", "_blank", "width=420,height=640");
+
+  if (!printWindow) {
+    alert("Trình duyệt đang chặn popup in phiếu. Hãy cho phép popup.");
+    return;
+  }
+
+  const html = `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Phiếu cây ${order.order_code}</title>
+        <style>
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            padding: 16px;
+            font-family: Arial, sans-serif;
+            color: #111827;
+          }
+          .slip {
+            width: 100%;
+            border: 2px dashed #111827;
+            border-radius: 16px;
+            padding: 16px;
+          }
+          .title {
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 12px;
+          }
+          .code {
+            font-size: 16px;
+            font-weight: 900;
+            text-align: center;
+            padding: 8px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            margin-bottom: 14px;
+          }
+          .row {
+            margin: 8px 0;
+            font-size: 14px;
+            line-height: 1.45;
+          }
+          .label { font-weight: 800; }
+          .product {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f3f4f6;
+          }
+          .product-name {
+            font-size: 18px;
+            font-weight: 900;
+          }
+          .footer {
+            margin-top: 14px;
+            font-size: 12px;
+            text-align: center;
+            color: #6b7280;
+          }
+          @media print {
+            body { padding: 0; }
+            .slip {
+              border-radius: 0;
+              border: 2px dashed #000;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        <div class="slip">
+          <div class="title">PHIẾU GẮN CÂY</div>
+          <div class="code">${order.order_code || ""}</div>
+
+          <div class="row"><span class="label">Khách:</span> ${order.customer_name || ""}</div>
+          <div class="row"><span class="label">SĐT:</span> ${order.customer_phone || ""}</div>
+          <div class="row"><span class="label">Tên FB:</span> ${order.fb_name || ""}</div>
+          <div class="row"><span class="label">Địa chỉ:</span> ${order.customer_address || ""}</div>
+
+          <div class="product">
+            <div class="product-name">${item.product_name || ""}</div>
+            <div class="row"><span class="label">Mã cây:</span> ${item.product_code || ""}</div>
+            <div class="row"><span class="label">Số lượng:</span> ${item.quantity || 1}</div>
+            <div class="row"><span class="label">Giá:</span> ${formatCurrency(item.price || 0)}</div>
+            <div class="row"><span class="label">Ghi chú cây:</span> ${item.item_note || ""}</div>
+          </div>
+
+          <div class="row"><span class="label">Tổng đơn:</span> ${formatCurrency(order.total || 0)}</div>
+          <div class="row"><span class="label">Phí ship đơn:</span> ${formatCurrency(order.shipping_fee || 0)}</div>
+
+          <div class="footer">In lúc ${new Date().toLocaleString("vi-VN")}</div>
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+export default function LiveSalePage() {
+  const { sessionId } = useParams();
+
+  const [comments, setComments] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedComment, setSelectedComment] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const isFetchingCommentsRef = useRef(false);
+  const isFetchingProductsRef = useRef(false);
+  const hasLoadedProductsRef = useRef(false);
+
+  const [orderForm, setOrderForm] = useState({
+    customer_name: "",
+    fb_name: "",
+    customer_phone: "",
+    fb_link: "",
+    province: "",
+    district: "",
+    ward: "",
+    address_detail: "",
+    shipping_fee: String(DEFAULT_SHIPPING_FEE),
+    discount: "",
+    note: "",
+  });
+
+  const [orderItems, setOrderItems] = useState([
+    {
+      product_id: "",
+      quantity: 1,
+      item_note: "",
+    },
+  ]);
+
+  const productMap = useMemo(() => {
+    return products.reduce((map, product) => {
+      map[product.id] = product;
+      return map;
+    }, {});
+  }, [products]);
+
+  const orderSubtotal = useMemo(() => {
+    return orderItems.reduce((total, item) => {
+      const product = productMap[item.product_id];
+      return total + Number(product?.price || 0) * Number(item.quantity || 0);
+    }, 0);
+  }, [orderItems, productMap]);
+
+  const orderTotal = useMemo(() => {
+    return (
+      orderSubtotal +
+      Number(orderForm.shipping_fee || 0) -
+      Number(orderForm.discount || 0)
+    );
+  }, [orderSubtotal, orderForm.shipping_fee, orderForm.discount]);
+
+  async function loadComments({ silent = false } = {}) {
+    if (!sessionId) return [];
+
+    if (isFetchingCommentsRef.current) {
+      console.log("[LiveSalePage] Skip duplicate comment request");
+      return [];
+    }
+
+    const startedAt = performance.now();
+
+    try {
+      isFetchingCommentsRef.current = true;
+
+      if (!silent) {
+        setLoading(true);
+        setErrorMessage("");
+      }
+
+      console.log("[LiveSalePage] Loading comments:", sessionId);
+
+      const commentData = await api.getLiveComments(sessionId);
+      const safeComments = Array.isArray(commentData) ? commentData : [];
+
+      setComments(safeComments);
+
+      console.log(
+        `[LiveSalePage] Loaded ${safeComments.length} comments in ${Math.round(
+          performance.now() - startedAt
+        )}ms`
+      );
+
+      return safeComments;
+    } catch (error) {
+      console.error("Không tải được comment:", error);
+
+      if (!silent) {
+        setErrorMessage(error.message || "Không tải được comment phiên live.");
+      }
+
+      return [];
+    } finally {
+      isFetchingCommentsRef.current = false;
+
+      if (!silent) {
+        setLoading(false);
+      }
+    }
+  }
+
+  async function loadProductsOnce() {
+    if (hasLoadedProductsRef.current || isFetchingProductsRef.current) {
+      return;
+    }
+
+    try {
+      isFetchingProductsRef.current = true;
+
+      const productData = await api.getProducts();
+      setProducts(Array.isArray(productData) ? productData : []);
+
+      hasLoadedProductsRef.current = true;
+    } catch (error) {
+      console.error("Không tải được sản phẩm:", error);
+      setProducts([]);
+    } finally {
+      isFetchingProductsRef.current = false;
+    }
+  }
+
+  async function loadData() {
+    await Promise.allSettled([
+      loadComments({ silent: false }),
+      loadProductsOnce(),
+    ]);
+  }
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let channel = null;
+
+    setComments([]);
+    setErrorMessage("");
+    setLoading(true);
+
+    isFetchingCommentsRef.current = false;
+    isFetchingProductsRef.current = false;
+    hasLoadedProductsRef.current = false;
+
+    loadData();
+
+    const pollingTimer = setInterval(() => {
+      if (document.hidden) return;
+      loadComments({ silent: true });
+    }, 5000);
+
+    try {
+      channel = supabase
+        .channel(`live-comments-${sessionId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "live_comments",
+            filter: `session_id=eq.${sessionId}`,
+          },
+          (payload) => {
+            setComments((prev) => {
+              const exists = prev.some((item) => item.id === payload.new.id);
+              if (exists) return prev;
+              return [payload.new, ...prev];
+            });
+          }
+        )
+        .subscribe();
+    } catch (error) {
+      console.error("Không kết nối được Supabase realtime:", error);
+    }
+
+    return () => {
+      clearInterval(pollingTimer);
+
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [sessionId]);
+
+  function openOrderSheet(comment) {
+    setSelectedComment(comment);
+
+    const fbLink = buildFacebookLink(comment);
+    const fbName = comment.customer_name || "";
+
+    setOrderForm({
+      customer_name: fbName,
+      fb_name: fbName,
+      customer_phone: extractPhone(comment.message || ""),
+      fb_link: fbLink,
+      province: "",
+      district: "",
+      ward: "",
+      address_detail: "",
+      shipping_fee: String(DEFAULT_SHIPPING_FEE),
+      discount: "",
+      note: comment.message || "",
+    });
+
+    setOrderItems([
+      {
+        product_id: "",
+        quantity: 1,
+        item_note: comment.message || "",
+      },
+    ]);
+  }
+
+  function closeOrderSheet() {
+    setSelectedComment(null);
+
+    setOrderForm({
+      customer_name: "",
+      fb_name: "",
+      customer_phone: "",
+      fb_link: "",
+      province: "",
+      district: "",
+      ward: "",
+      address_detail: "",
+      shipping_fee: String(DEFAULT_SHIPPING_FEE),
+      discount: "",
+      note: "",
+    });
+
+    setOrderItems([
+      {
+        product_id: "",
+        quantity: 1,
+        item_note: "",
+      },
+    ]);
+  }
+
+  function updateOrderForm(field, value) {
+    setOrderForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function updateOrderItem(index, field, value) {
+    setOrderItems((prev) =>
+      prev.map((item, itemIndex) => {
+        if (itemIndex !== index) return item;
+
+        return {
+          ...item,
+          [field]: value,
+        };
+      })
+    );
+  }
+
+  function addOrderItem() {
+    setOrderItems((prev) => [
+      ...prev,
+      {
+        product_id: "",
+        quantity: 1,
+        item_note: "",
+      },
+    ]);
+  }
+
+  function removeOrderItem(indexToRemove) {
+    setOrderItems((prev) => {
+      if (prev.length === 1) return prev;
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
+  }
+
+  async function handleSaveOrder({ shouldPrint = false } = {}) {
+    if (!selectedComment) return;
+
+    if (!orderForm.customer_name.trim()) {
+      alert("Vui lòng nhập tên khách hàng.");
+      return;
+    }
+
+    if (!orderForm.customer_phone.trim()) {
+      alert("Vui lòng nhập số điện thoại.");
+      return;
+    }
+
+    if (!orderForm.address_detail.trim()) {
+      alert("Vui lòng nhập địa chỉ giao nhận.");
+      return;
+    }
+
+    const validItems = orderItems
+      .filter((item) => item.product_id)
+      .map((item) => ({
+        product_id: item.product_id,
+        quantity: Number(item.quantity || 1),
+        item_note: item.item_note || null,
+      }));
+
+    if (!validItems.length) {
+      alert("Vui lòng chọn ít nhất một cây/sản phẩm.");
+      return;
+    }
+
+    try {
+      setOrderLoading(true);
+
+      const order = await api.createOrderFromComment({
+        comment_id: selectedComment.id,
+
+        customer_name: orderForm.customer_name,
+        fb_name: orderForm.fb_name || null,
+        customer_phone: orderForm.customer_phone,
+        fb_link: orderForm.fb_link || null,
+
+        province: orderForm.province || null,
+        district: orderForm.district || null,
+        ward: orderForm.ward || null,
+        address_detail: orderForm.address_detail,
+        customer_address: null,
+
+        shipping_fee: Number(orderForm.shipping_fee || DEFAULT_SHIPPING_FEE),
+        discount: Number(orderForm.discount || 0),
+        note: orderForm.note || null,
+
+        items: validItems,
+      });
+
+      setComments((prev) =>
+        prev.map((comment) => {
+          if (comment.id !== selectedComment.id) return comment;
+
+          return {
+            ...comment,
+            status: "used",
+            order_id: order.id,
+          };
+        })
+      );
+
+      if (shouldPrint && Array.isArray(order.added_items)) {
+        for (const item of order.added_items) {
+          try {
+            await api.markOrderItemPrinted(order.id, item.id);
+          } catch (printError) {
+            console.error("Không cập nhật trạng thái in:", printError);
+          }
+
+          printPlantSlip(order, item);
+        }
+      }
+
+      const message = order.merged
+        ? `Đã cộng cây vào đơn cũ ${order.order_code}. Phí ship vẫn giữ 1 lần.`
+        : `Đã tạo đơn mới ${order.order_code}.`;
+
+      alert(message);
+
+      closeOrderSheet();
+
+      hasLoadedProductsRef.current = false;
+      loadProductsOnce();
+      loadComments({ silent: true });
+    } catch (error) {
+      alert(error.message || "Không tạo/cộng được đơn hàng.");
+    } finally {
+      setOrderLoading(false);
+    }
+  }
+
+  function renderAvatar(comment) {
+    if (comment.customer_avatar) {
+      return (
+        <img
+          src={comment.customer_avatar}
+          alt={comment.customer_name || "Khách hàng"}
+          className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-white"
+        />
+      );
+    }
+
+    return (
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-700 text-sm font-black text-white">
+        {(comment.customer_name || "K").slice(0, 1)}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-5xl space-y-4 sm:space-y-5">
+      <section className="rounded-[1.75rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+          <Radio size={14} />
+          Phiên live đang xem
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black sm:text-4xl">
+          Comment phiên live
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-green-50/85">
+          Bấm comment để tạo đơn. Nếu cùng số điện thoại trong cùng phiên live,
+          hệ thống sẽ cộng cây vào đơn cũ và chỉ tính phí ship một lần.
+        </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Session ID</p>
+            <p className="mt-1 break-all text-xs font-bold">{sessionId}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Tổng comment</p>
+            <p className="mt-1 text-2xl font-black">{comments.length}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Đã tạo/cộng đơn</p>
+            <p className="mt-1 text-2xl font-black">
+              {comments.filter((comment) => comment.order_id).length}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 text-lg font-black text-slate-950">
+            <MessageCircle size={20} className="text-green-700" />
+            Danh sách comment
+          </h3>
+
+          <button
+            type="button"
+            onClick={() => loadComments({ silent: false })}
+            className="inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200"
+          >
+            <RefreshCcw size={14} />
+            Tải lại
+          </button>
+        </div>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-semibold leading-6 text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="mt-4 space-y-3">
+          {loading ? (
+            <div className="flex min-h-52 items-center justify-center rounded-2xl bg-slate-50">
+              <div className="text-center">
+                <Loader2 className="mx-auto animate-spin text-green-700" />
+                <p className="mt-2 text-sm text-slate-500">
+                  Đang tải comment...
+                </p>
+              </div>
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+              Chưa có comment nào trong phiên live này.
+            </div>
+          ) : (
+            comments.map((comment) => (
+              <button
+                key={comment.id}
+                type="button"
+                onClick={() => openOrderSheet(comment)}
+                className="w-full rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left transition hover:border-green-100 hover:bg-green-50"
+              >
+                <div className="flex items-start gap-3">
+                  {renderAvatar(comment)}
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-black text-slate-950">
+                        {comment.customer_name || "Khách chưa định danh"}
+                      </p>
+
+                      {comment.customer_platform_id && (
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                          Facebook ID: {comment.customer_platform_id}
+                        </span>
+                      )}
+
+                      <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-500">
+                        {comment.platform || "facebook"}
+                      </span>
+
+                      {comment.order_id && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-bold text-green-700">
+                          <CheckCircle2 size={12} />
+                          Đã thêm vào đơn
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-1 break-words text-sm leading-6 text-slate-700">
+                      {comment.message || "(Không có nội dung)"}
+                    </p>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold text-green-700">
+                        {comment.order_id
+                          ? "Comment này đã được thêm vào đơn"
+                          : "Bấm để tạo/cộng đơn từ comment này"}
+                      </span>
+
+                      {comment.customer_platform_id && (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-700">
+                          <ExternalLink size={12} />
+                          Có link Facebook
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </section>
+
+      {selectedComment && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4">
+          <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-[1.75rem] bg-white p-4 shadow-2xl sm:max-w-3xl sm:rounded-[1.75rem] sm:p-6">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="flex min-w-0 items-start gap-3">
+                {renderAvatar(selectedComment)}
+
+                <div className="min-w-0">
+                  <h3 className="flex items-center gap-2 text-xl font-black text-slate-950">
+                    <ShoppingCart size={22} className="text-green-700" />
+                    Tạo/cộng đơn từ comment
+                  </h3>
+
+                  <p className="mt-1 text-sm font-bold text-slate-700">
+                    {selectedComment.customer_name || "Khách chưa định danh"}
+                  </p>
+
+                  <p className="mt-1 break-words text-sm leading-6 text-slate-500">
+                    {selectedComment.message || "(Không có nội dung)"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeOrderSheet}
+                className="rounded-full bg-slate-100 p-2 text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-5">
+              <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50 p-4">
+                <h4 className="font-black text-slate-950">
+                  Thông tin khách hàng
+                </h4>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Tên khách hàng *"
+                    value={orderForm.customer_name}
+                    onChange={(event) =>
+                      updateOrderForm("customer_name", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Tên Facebook nếu có"
+                    value={orderForm.fb_name}
+                    onChange={(event) =>
+                      updateOrderForm("fb_name", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Số điện thoại *"
+                    value={orderForm.customer_phone}
+                    onChange={(event) =>
+                      updateOrderForm("customer_phone", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Link Facebook nếu có"
+                    value={orderForm.fb_link}
+                    onChange={(event) =>
+                      updateOrderForm("fb_link", event.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50 p-4">
+                <h4 className="font-black text-slate-950">
+                  Địa chỉ giao nhận
+                </h4>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Tỉnh / Thành phố"
+                    value={orderForm.province}
+                    onChange={(event) =>
+                      updateOrderForm("province", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Quận / Huyện"
+                    value={orderForm.district}
+                    onChange={(event) =>
+                      updateOrderForm("district", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Phường / Xã"
+                    value={orderForm.ward}
+                    onChange={(event) =>
+                      updateOrderForm("ward", event.target.value)
+                    }
+                  />
+                </div>
+
+                <textarea
+                  className="mt-3 min-h-20 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                  placeholder="Số nhà, tên đường, ghi chú giao hàng *"
+                  value={orderForm.address_detail}
+                  onChange={(event) =>
+                    updateOrderForm("address_detail", event.target.value)
+                  }
+                />
+              </div>
+
+              <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h4 className="font-black text-slate-950">
+                    Cây khách chốt
+                  </h4>
+
+                  <button
+                    type="button"
+                    onClick={addOrderItem}
+                    className="flex items-center gap-1 rounded-full bg-green-700 px-3 py-1.5 text-xs font-bold text-white"
+                  >
+                    <Plus size={13} />
+                    Thêm cây
+                  </button>
+                </div>
+
+                <div className="mt-3 space-y-3">
+                  {orderItems.map((item, index) => {
+                    const product = productMap[item.product_id];
+
+                    return (
+                      <div
+                        key={`${index}-${item.product_id}`}
+                        className="rounded-2xl bg-white p-3 shadow-sm"
+                      >
+                        <select
+                          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                          value={item.product_id}
+                          onChange={(event) =>
+                            updateOrderItem(index, "product_id", event.target.value)
+                          }
+                        >
+                          <option value="">Chọn cây/sản phẩm</option>
+
+                          {products.map((product) => (
+                            <option key={product.id} value={product.id}>
+                              {product.code} - {product.name} -{" "}
+                              {formatCurrency(product.price)} - tồn {product.stock}
+                            </option>
+                          ))}
+                        </select>
+
+                        <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
+                          <input
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                            type="number"
+                            min="1"
+                            placeholder="Số lượng"
+                            value={item.quantity}
+                            onChange={(event) =>
+                              updateOrderItem(index, "quantity", event.target.value)
+                            }
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => removeOrderItem(index)}
+                            className="rounded-2xl bg-red-50 px-3 text-sm font-bold text-red-600"
+                          >
+                            Xóa
+                          </button>
+                        </div>
+
+                        <textarea
+                          className="mt-2 min-h-16 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                          placeholder="Ghi chú cây / nội dung khách chốt"
+                          value={item.item_note}
+                          onChange={(event) =>
+                            updateOrderItem(index, "item_note", event.target.value)
+                          }
+                        />
+
+                        {product && (
+                          <p className="mt-2 text-xs font-bold text-slate-500">
+                            Tạm tính cây này:{" "}
+                            {formatCurrency(
+                              Number(product.price || 0) * Number(item.quantity || 0)
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50 p-4">
+                <h4 className="font-black text-slate-950">Thanh toán</h4>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Phí ship"
+                    type="number"
+                    min="0"
+                    value={orderForm.shipping_fee}
+                    onChange={(event) =>
+                      updateOrderForm("shipping_fee", event.target.value)
+                    }
+                  />
+
+                  <input
+                    className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                    placeholder="Giảm giá"
+                    type="number"
+                    min="0"
+                    value={orderForm.discount}
+                    onChange={(event) =>
+                      updateOrderForm("discount", event.target.value)
+                    }
+                  />
+                </div>
+
+                <textarea
+                  className="mt-3 min-h-20 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-4 focus:ring-green-100"
+                  placeholder="Ghi chú đơn hàng"
+                  value={orderForm.note}
+                  onChange={(event) => updateOrderForm("note", event.target.value)}
+                />
+
+                <div className="mt-3 rounded-2xl bg-green-50 p-4 text-green-900">
+                  <div className="flex justify-between text-sm">
+                    <span>Tạm tính cây mới</span>
+                    <strong>{formatCurrency(orderSubtotal)}</strong>
+                  </div>
+
+                  <div className="mt-2 flex justify-between text-sm">
+                    <span>Phí ship đơn</span>
+                    <strong>{formatCurrency(orderForm.shipping_fee || 0)}</strong>
+                  </div>
+
+                  <div className="mt-2 flex justify-between text-sm">
+                    <span>Tổng tạm tính</span>
+                    <strong>{formatCurrency(orderTotal)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={orderLoading || selectedComment.order_id}
+                  onClick={() => handleSaveOrder({ shouldPrint: false })}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3 text-sm font-black text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {orderLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <PackagePlus size={18} />
+                  )}
+
+                  {selectedComment.order_id
+                    ? "Comment này đã thêm vào đơn"
+                    : "Lưu vào đơn"}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={orderLoading || selectedComment.order_id}
+                  onClick={() => handleSaveOrder({ shouldPrint: true })}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {orderLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Printer size={18} />
+                  )}
+
+                  Lưu & in phiếu cây
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="src/pages/LiveSessionsPage.jsx">
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  PlayCircle,
+  Radio,
+  RefreshCcw,
+  Smartphone,
+  Wifi,
+} from "lucide-react";
+import { api } from "../lib/api";
+
+export default function LiveSessionsPage() {
+  const navigate = useNavigate();
+
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [facebookLoading, setFacebookLoading] = useState(false);
+  const [tiktokLoading, setTiktokLoading] = useState(false);
+
+  const [facebookLiveVideoId, setFacebookLiveVideoId] = useState("");
+  const [tiktokUsername, setTiktokUsername] = useState("vuonlanthanhnha");
+
+  const [historyFilter, setHistoryFilter] = useState("all");
+
+  const filteredSessions = useMemo(() => {
+    if (historyFilter === "all") return sessions;
+
+    return sessions.filter((session) => session.platform === historyFilter);
+  }, [sessions, historyFilter]);
+
+  const stats = useMemo(() => {
+    return {
+      total: sessions.length,
+      facebook: sessions.filter((item) => item.platform === "facebook").length,
+      tiktok: sessions.filter((item) => item.platform === "tiktok").length,
+      connected: sessions.filter((item) => item.connection_status === "connected")
+        .length,
+      error: sessions.filter((item) => item.connection_status === "error").length,
+    };
+  }, [sessions]);
+
+  async function loadSessions() {
+    try {
+      setLoading(true);
+
+      const data = await api.getLiveSessions();
+      setSessions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Không tải được lịch sử phiên live");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  async function handleConnectFacebook() {
+    try {
+      setFacebookLoading(true);
+
+      const cleanLiveVideoId = facebookLiveVideoId.trim();
+
+      const session = await api.connectFacebookLive({
+        title: cleanLiveVideoId
+          ? `Facebook Video ${cleanLiveVideoId}`
+          : "Facebook Live",
+        live_video_id: cleanLiveVideoId || null,
+      });
+
+      navigate(`/live/${session.id}`);
+    } catch (error) {
+      alert(error.message || "Không kết nối được Facebook Live");
+    } finally {
+      setFacebookLoading(false);
+    }
+  }
+
+  async function handleConnectTikTok() {
+    if (!tiktokUsername.trim()) {
+      alert("Vui lòng nhập username TikTok");
+      return;
+    }
+
+    try {
+      setTiktokLoading(true);
+
+      const cleanUsername = tiktokUsername.replace("@", "").trim();
+
+      const session = await api.connectTikTokLive({
+        title: `TikTok Live @${cleanUsername}`,
+        username: cleanUsername,
+      });
+
+      navigate(`/live/${session.id}`);
+    } catch (error) {
+      alert(error.message || "Không kết nối được TikTok Live");
+    } finally {
+      setTiktokLoading(false);
+    }
+  }
+
+  function getStatusLabel(status) {
+    if (status === "connected") return "Đã kết nối";
+    if (status === "connecting") return "Đang kết nối";
+    if (status === "ended") return "Đã kết thúc";
+    if (status === "error") return "Có lỗi";
+    return "Chưa kết nối";
+  }
+
+  function getStatusClass(status) {
+    if (status === "connected") return "bg-green-50 text-green-700";
+    if (status === "connecting") return "bg-yellow-50 text-yellow-700";
+    if (status === "ended") return "bg-slate-100 text-slate-600";
+    if (status === "error") return "bg-red-50 text-red-600";
+    return "bg-slate-100 text-slate-600";
+  }
+
+  function getPlatformLabel(platform) {
+    if (platform === "facebook") return "Facebook";
+    if (platform === "tiktok") return "TikTok";
+    return platform || "Live";
+  }
+
+  function getPlatformClass(platform) {
+    if (platform === "facebook") return "bg-blue-50 text-blue-700";
+    if (platform === "tiktok") return "bg-slate-900 text-white";
+    return "bg-slate-100 text-slate-700";
+  }
+
+  function getEmptyText() {
+    if (historyFilter === "facebook") {
+      return "Chưa có lịch sử Facebook Live.";
+    }
+
+    if (historyFilter === "tiktok") {
+      return "Chưa có lịch sử TikTok Live.";
+    }
+
+    return "Chưa có phiên live nào.";
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-5xl space-y-4 sm:space-y-5">
+      <section className="rounded-[1.75rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-green-50 ring-1 ring-white/20">
+          <Radio size={14} />
+          Quản lý livestream bán hàng
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-4xl">
+          Phiên live
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-green-50/85 sm:text-base">
+          Kết nối Facebook hoặc TikTok Live để lưu comment, xem lại lịch sử và
+          tạo đơn hàng từ từng comment.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-4">
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Tổng phiên</p>
+            <p className="mt-1 text-2xl font-black">{stats.total}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Facebook</p>
+            <p className="mt-1 text-2xl font-black">{stats.facebook}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">TikTok</p>
+            <p className="mt-1 text-2xl font-black">{stats.tiktok}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Có lỗi</p>
+            <p className="mt-1 text-2xl font-black">{stats.error}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="rounded-2xl bg-blue-50 p-3 text-blue-600">
+              <MessageCircle size={22} />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-lg font-black text-slate-950">
+                Kết nối Facebook
+              </h3>
+
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Nhập Facebook Video ID để test video cũ, hoặc để trống nếu Page
+                đang live thật.
+              </p>
+            </div>
+          </div>
+
+          <input
+            className="mt-4 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+            value={facebookLiveVideoId}
+            onChange={(event) => setFacebookLiveVideoId(event.target.value)}
+            placeholder="Ví dụ: 1480242407236292"
+          />
+
+          <button
+            type="button"
+            onClick={handleConnectFacebook}
+            disabled={facebookLoading}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {facebookLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Wifi size={18} />
+            )}
+            {facebookLoading
+              ? "Đang kết nối..."
+              : facebookLiveVideoId.trim()
+                ? "Kết nối Facebook bằng Video ID"
+                : "Tự tìm Facebook Live đang phát"}
+          </button>
+        </div>
+
+        <div className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="rounded-2xl bg-slate-100 p-3 text-slate-900">
+              <Smartphone size={22} />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-lg font-black text-slate-950">
+                Kết nối TikTok
+              </h3>
+
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                TikTok cần tài khoản đang LIVE public thật mới bắt được comment.
+              </p>
+            </div>
+          </div>
+
+          <input
+            className="mt-4 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:ring-4 focus:ring-green-100"
+            value={tiktokUsername}
+            onChange={(event) => setTiktokUsername(event.target.value)}
+            placeholder="Ví dụ: vuonlanthanhnha"
+          />
+
+          <button
+            type="button"
+            onClick={handleConnectTikTok}
+            disabled={tiktokLoading}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {tiktokLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Smartphone size={18} />
+            )}
+            {tiktokLoading ? "Đang kết nối..." : "Kết nối TikTok Live"}
+          </button>
+        </div>
+      </section>
+
+      <section className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="text-lg font-black text-slate-950">
+              Lịch sử phiên live
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Chọn Facebook hoặc TikTok để xem riêng từng lịch sử.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={loadSessions}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
+          >
+            <RefreshCcw size={14} />
+            Tải lại
+          </button>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => setHistoryFilter("all")}
+            className={`rounded-2xl px-4 py-3 text-sm font-black transition ${
+              historyFilter === "all"
+                ? "bg-green-700 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Tất cả ({stats.total})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setHistoryFilter("facebook")}
+            className={`rounded-2xl px-4 py-3 text-sm font-black transition ${
+              historyFilter === "facebook"
+                ? "bg-blue-600 text-white"
+                : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+            }`}
+          >
+            Lịch sử Facebook ({stats.facebook})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setHistoryFilter("tiktok")}
+            className={`rounded-2xl px-4 py-3 text-sm font-black transition ${
+              historyFilter === "tiktok"
+                ? "bg-slate-950 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Lịch sử TikTok ({stats.tiktok})
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {loading ? (
+            <div className="flex min-h-36 items-center justify-center rounded-2xl bg-slate-50">
+              <div className="text-center">
+                <Loader2 className="mx-auto animate-spin text-green-700" />
+                <p className="mt-2 text-sm text-slate-500">
+                  Đang tải phiên live...
+                </p>
+              </div>
+            </div>
+          ) : filteredSessions.length === 0 ? (
+            <div className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+              {getEmptyText()}
+            </div>
+          ) : (
+            filteredSessions.map((session) => (
+              <button
+                key={session.id}
+                type="button"
+                onClick={() => navigate(`/live/${session.id}`)}
+                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-left transition hover:border-green-100 hover:bg-green-50"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-black ${getPlatformClass(
+                        session.platform
+                      )}`}
+                    >
+                      {getPlatformLabel(session.platform)}
+                    </span>
+
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${getStatusClass(
+                        session.connection_status
+                      )}`}
+                    >
+                      {session.connection_status === "connected" && (
+                        <CheckCircle2 size={12} />
+                      )}
+
+                      {session.connection_status === "error" && (
+                        <AlertCircle size={12} />
+                      )}
+
+                      {getStatusLabel(session.connection_status)}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 break-words text-base font-black text-slate-950">
+                    {session.title}
+                  </p>
+
+                  <p className="mt-1 break-all text-xs font-semibold text-slate-400">
+                    Session ID: {session.id}
+                  </p>
+
+                  {session.external_live_id && (
+                    <p className="mt-1 break-all text-xs font-semibold text-slate-400">
+                      External ID: {session.external_live_id}
+                    </p>
+                  )}
+
+                  {session.last_error && (
+                    <p className="mt-3 break-words rounded-2xl bg-red-50 p-3 text-xs leading-5 text-red-600">
+                      {session.last_error}
+                    </p>
+                  )}
+                </div>
+
+                <PlayCircle className="shrink-0 text-green-700" size={26} />
+              </button>
+            ))
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+</file>
+
+<file path="src/pages/OrdersPage.jsx">
+import { useEffect, useMemo, useState } from "react";
+import {
+  Loader2,
+  PackageCheck,
+  RefreshCcw,
+  Search,
+  ShoppingCart,
+} from "lucide-react";
+import { api } from "../lib/api";
+
+function formatCurrency(value) {
+  return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+}
+
+function formatDate(value) {
+  if (!value) return "";
+
+  try {
+    return new Date(value).toLocaleString("vi-VN");
+  } catch {
+    return value;
+  }
+}
+
+function getStatusLabel(status) {
+  if (status === "new") return "Mới";
+  if (status === "confirmed") return "Đã xác nhận";
+  if (status === "printed") return "Đã in phiếu";
+  if (status === "shipped") return "Đang giao";
+  if (status === "done") return "Hoàn tất";
+  if (status === "cancelled") return "Đã hủy";
+  return status || "Không rõ";
+}
+
+function getStatusClass(status) {
+  if (status === "new") return "bg-blue-50 text-blue-700";
+  if (status === "confirmed") return "bg-green-50 text-green-700";
+  if (status === "printed") return "bg-purple-50 text-purple-700";
+  if (status === "shipped") return "bg-yellow-50 text-yellow-700";
+  if (status === "done") return "bg-slate-100 text-slate-700";
+  if (status === "cancelled") return "bg-red-50 text-red-600";
+  return "bg-slate-100 text-slate-600";
+}
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const filteredOrders = useMemo(() => {
+    const search = keyword.trim().toLowerCase();
+
+    if (!search) return orders;
+
+    return orders.filter((order) => {
+      return [
+        order.order_code,
+        order.customer_name,
+        order.fb_name,
+        order.customer_phone,
+        order.customer_address,
+        order.status,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(search);
+    });
+  }, [orders, keyword]);
+
+  const stats = useMemo(() => {
+    return {
+      totalOrders: orders.length,
+      totalRevenue: orders
+        .filter((order) => order.status !== "cancelled")
+        .reduce((sum, order) => sum + Number(order.total || 0), 0),
+      newOrders: orders.filter((order) => order.status === "new").length,
+      itemCount: orders.reduce((sum, order) => sum + Number(order.item_count || 0), 0),
+    };
+  }, [orders]);
+
+  async function loadOrders() {
+    try {
+      setLoading(true);
+      setErrorMessage("");
+
+      // Force true để không lấy cache cũ sau khi vừa tạo đơn từ comment.
+      const data = await api.refreshOrders();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Không tải được đơn hàng:", error);
+      setErrorMessage(error.message || "Không tải được danh sách đơn hàng.");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-4 sm:space-y-5">
+      <section className="rounded-[1.75rem] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 p-5 text-white shadow-sm sm:p-7">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+          <ShoppingCart size={14} />
+          Quản lý đơn hàng
+        </div>
+
+        <h2 className="mt-4 text-2xl font-black sm:text-4xl">
+          Đơn hàng livestream
+        </h2>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-green-50/85">
+          Theo dõi các đơn được tạo từ comment live, đơn đã gộp theo số điện
+          thoại và trạng thái xử lý.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-4">
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Tổng đơn</p>
+            <p className="mt-1 text-2xl font-black">{stats.totalOrders}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Đơn mới</p>
+            <p className="mt-1 text-2xl font-black">{stats.newOrders}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Số cây đã chốt</p>
+            <p className="mt-1 text-2xl font-black">{stats.itemCount}</p>
+          </div>
+
+          <div className="rounded-2xl bg-white/15 p-4">
+            <p className="text-xs text-green-50/80">Tổng tiền</p>
+            <p className="mt-1 text-2xl font-black">
+              {formatCurrency(stats.totalRevenue)}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[1.5rem] border border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="flex items-center gap-2 text-lg font-black text-slate-950">
+              <PackageCheck size={20} className="text-green-700" />
+              Danh sách đơn hàng
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Dữ liệu luôn được tải mới khi vào trang này.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={loadOrders}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
+          >
+            <RefreshCcw size={14} />
+            Tải lại
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <Search size={18} className="text-slate-400" />
+
+          <input
+            className="w-full bg-transparent text-sm outline-none"
+            placeholder="Tìm theo mã đơn, tên khách, số điện thoại, địa chỉ..."
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+          />
+        </div>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="mt-4 space-y-3">
+          {loading ? (
+            <div className="flex min-h-52 items-center justify-center rounded-2xl bg-slate-50">
+              <div className="text-center">
+                <Loader2 className="mx-auto animate-spin text-green-700" />
+                <p className="mt-2 text-sm text-slate-500">
+                  Đang tải đơn hàng...
+                </p>
+              </div>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+              Chưa có đơn hàng nào.
+            </div>
+          ) : (
+            filteredOrders.map((order) => (
+              <div
+                key={order.id}
+                className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-base font-black text-slate-950">
+                        {order.order_code}
+                      </p>
+
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-black ${getStatusClass(
+                          order.status
+                        )}`}
+                      >
+                        {getStatusLabel(order.status)}
+                      </span>
+
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-500">
+                        {order.item_count || 0} cây
+                      </span>
+                    </div>
+
+                    <p className="mt-2 text-sm font-bold text-slate-800">
+                      {order.customer_name || "Khách chưa có tên"}
+                    </p>
+
+                    {order.fb_name && (
+                      <p className="mt-1 text-xs font-semibold text-blue-700">
+                        Facebook: {order.fb_name}
+                      </p>
+                    )}
+
+                    <p className="mt-1 text-xs font-semibold text-slate-500">
+                      SĐT: {order.customer_phone || "Chưa có"}
+                    </p>
+
+                    <p className="mt-1 break-words text-xs font-semibold text-slate-500">
+                      Địa chỉ: {order.customer_address || "Chưa có"}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-400">
+                      Tạo lúc: {formatDate(order.created_at)}
+                    </p>
+                  </div>
+
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs text-slate-500">Tổng đơn</p>
+                    <p className="text-xl font-black text-green-700">
+                      {formatCurrency(order.total)}
+                    </p>
+                  </div>
+                </div>
+
+                {order.note && (
+                  <div className="mt-3 rounded-2xl bg-white p-3 text-xs leading-5 text-slate-600">
+                    {order.note}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+</file>
+
+<file path="src/pages/ProductsPage.jsx">
+import {
+  CategorySection,
+  OverviewSection,
+  ProductCreateSection,
+  ProductEditSheet,
+  ProductFiltersSection,
+  ProductListSection,
+  ProductsHero,
+} from "../features/products/ProductPageSections";
+import { useProductsController } from "../features/products/useProductsController";
+
+export default function ProductsPage() {
+  const controller = useProductsController();
+
+  return (
+    <div className="mx-auto w-full max-w-5xl space-y-4 sm:space-y-5">
+      <ProductsHero stats={controller.stats} />
+
+      <OverviewSection stats={controller.stats} />
+
+      <CategorySection
+        open={controller.openSections.category}
+        onToggle={() => controller.toggleSection("category")}
+        categoryForm={controller.categoryForm}
+        setCategoryForm={controller.setCategoryForm}
+        categoryLoading={controller.categoryLoading}
+        categories={controller.categories}
+        handleCreateCategory={controller.handleCreateCategory}
+      />
+
+      <ProductCreateSection
+        open={controller.openSections.create}
+        onToggle={() => controller.toggleSection("create")}
+        productForm={controller.productForm}
+        setProductForm={controller.setProductForm}
+        categories={controller.categories}
+        productLoading={controller.productLoading}
+        images={controller.createImages}
+        handleCreateProduct={controller.handleCreateProduct}
+      />
+
+      <ProductFiltersSection
+        open={controller.openSections.filters}
+        onToggle={() => controller.toggleSection("filters")}
+        searchText={controller.searchText}
+        setSearchText={controller.setSearchText}
+        selectedCategoryFilter={controller.selectedCategoryFilter}
+        setSelectedCategoryFilter={controller.setSelectedCategoryFilter}
+        categories={controller.categories}
+        total={controller.products.length}
+        shown={controller.filteredProducts.length}
+      />
+
+      <ProductListSection
+        open={controller.openSections.list}
+        onToggle={() => controller.toggleSection("list")}
+        products={controller.filteredProducts}
+        pageLoading={controller.pageLoading}
+        deleteLoadingId={controller.deleteLoadingId}
+        onEdit={controller.openEditProduct}
+        onDelete={controller.handleDeleteProduct}
+      />
+
+      <ProductEditSheet
+        editingProduct={controller.editingProduct}
+        editForm={controller.editForm}
+        setEditForm={controller.setEditForm}
+        categories={controller.categories}
+        editExistingImages={controller.editExistingImages}
+        removeExistingEditImage={controller.removeExistingEditImage}
+        editImages={controller.editImages}
+        editLoading={controller.editLoading}
+        onClose={controller.closeEditProduct}
+        onSubmit={controller.handleUpdateProduct}
+      />
+    </div>
+  );
+}
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+</file>
+
+</files>

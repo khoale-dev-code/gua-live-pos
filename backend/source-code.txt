@@ -1,0 +1,3360 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app/__init__.py
+app/main.py
+app/routes/__init__.py
+app/routes/categories.py
+app/routes/facebook_webhooks.py
+app/routes/live_sessions.py
+app/routes/orders.py
+app/routes/products.py
+app/schemas/__init__.py
+app/services/__init__.py
+app/services/database.py
+app/services/facebook_live_connector.py
+app/services/live_comment_service.py
+app/services/text_utils.py
+app/services/tiktok_live_connector.py
+backfill_facebook_comment_profiles.py
+check_facebook_live_now.py
+fix_vietnamese_addresses.py
+fix_vietnamese_mojibake.py
+requirements.txt
+test_single_comment_from.py
+test_tiktok_live.py
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app/__init__.py">
+
+</file>
+
+<file path="app/main.py">
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes import products, categories, live_sessions, orders, facebook_webhooks
+
+app = FastAPI(title="GUA Live POS API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(products.router)
+app.include_router(categories.router)
+app.include_router(live_sessions.router)
+app.include_router(orders.router)
+app.include_router(facebook_webhooks.router)
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "GUA Live POS API is running"
+    }
+
+
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "ok"
+    }
+</file>
+
+<file path="app/routes/__init__.py">
+
+</file>
+
+<file path="app/routes/categories.py">
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from app.services.database import get_connection
+
+router = APIRouter(prefix="/api/categories", tags=["Categories"])
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    description: str | None = None
+
+
+@router.get("")
+def get_categories():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select id, name, description, is_active, created_at
+                from product_categories
+                where is_active = true
+                order by created_at asc
+                """
+            )
+
+            rows = cur.fetchall()
+
+            return [
+                {
+                    "id": str(row[0]),
+                    "name": row[1],
+                    "description": row[2],
+                    "is_active": row[3],
+                    "created_at": row[4].isoformat() if row[4] else None,
+                }
+                for row in rows
+            ]
+
+
+@router.post("")
+def create_category(payload: CategoryCreate):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    insert into product_categories (name, description)
+                    values (%s, %s)
+                    returning id, name, description, is_active, created_at
+                    """,
+                    (
+                        payload.name.strip(),
+                        payload.description,
+                    ),
+                )
+
+                row = cur.fetchone()
+                conn.commit()
+
+                if not row:
+                    raise HTTPException(status_code=400, detail="Cannot create category")
+
+                return {
+                    "id": str(row[0]),
+                    "name": row[1],
+                    "description": row[2],
+                    "is_active": row[3],
+                    "created_at": row[4].isoformat() if row[4] else None,
+                }
+
+            except Exception as e:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(e))
+</file>
+
+<file path="app/routes/facebook_webhooks.py">
+import os
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import PlainTextResponse
+from dotenv import load_dotenv
+
+from app.services.database import get_connection
+from app.services.live_comment_service import insert_live_comment
+
+load_dotenv(".env")
+
+router = APIRouter(prefix="/api/webhooks/facebook", tags=["Facebook Webhook"])
+
+VERIFY_TOKEN = os.getenv("FACEBOOK_WEBHOOK_VERIFY_TOKEN", "gua_webhook_verify_2026")
+
+
+def find_latest_active_facebook_session():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select id
+                from live_sessions
+                where platform = 'facebook'
+                  and status = 'active'
+                order by started_at desc
+                limit 1
+                """
+            )
+
+            row = cur.fetchone()
+
+            return str(row[0]) if row else None
+
+
+def normalize_comment_value(value: dict[str, Any]):
+    from_user = value.get("from") or {}
+
+    external_comment_id = (
+        value.get("comment_id")
+        or value.get("id")
+        or value.get("commentID")
+    )
+
+    message = (
+        value.get("message")
+        or value.get("text")
+        or value.get("body")
+        or ""
+    )
+
+    customer_name = (
+        from_user.get("name")
+        or value.get("sender_name")
+        or value.get("user_name")
+    )
+
+    customer_platform_id = (
+        from_user.get("id")
+        or value.get("sender_id")
+        or value.get("from_id")
+        or value.get("user_id")
+    )
+
+    return {
+        "external_comment_id": external_comment_id,
+        "message": message,
+        "customer_name": customer_name,
+        "customer_platform_id": customer_platform_id,
+    }
+
+
+@router.get("")
+async def verify_webhook(request: Request):
+    params = request.query_params
+
+    mode = params.get("hub.mode")
+    token = params.get("hub.verify_token")
+    challenge = params.get("hub.challenge")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return PlainTextResponse(challenge or "")
+
+    raise HTTPException(status_code=403, detail="Invalid verify token")
+
+
+@router.post("")
+async def receive_facebook_webhook(request: Request):
+    payload = await request.json()
+
+    print("FACEBOOK WEBHOOK PAYLOAD:", payload)
+
+    session_id = find_latest_active_facebook_session()
+
+    if not session_id:
+        return {
+            "ok": True,
+            "message": "No active Facebook live session. Payload received but not saved.",
+        }
+
+    saved_count = 0
+    ignored_count = 0
+
+    entries = payload.get("entry") or []
+
+    for entry in entries:
+        changes = entry.get("changes") or []
+
+        for change in changes:
+            field = change.get("field")
+            value = change.get("value") or {}
+
+            # Page comment event thường đi qua field feed.
+            # value.item = comment, value.verb = add/edited.
+            if field != "feed":
+                ignored_count += 1
+                continue
+
+            if value.get("item") != "comment":
+                ignored_count += 1
+                continue
+
+            if value.get("verb") not in ["add", "edited"]:
+                ignored_count += 1
+                continue
+
+            data = normalize_comment_value(value)
+
+            if not data["external_comment_id"] and not data["message"]:
+                ignored_count += 1
+                continue
+
+            insert_live_comment(
+                session_id=session_id,
+                platform="facebook",
+                external_comment_id=data["external_comment_id"],
+                customer_name=data["customer_name"],
+                customer_avatar=None,
+                customer_platform_id=data["customer_platform_id"],
+                message=data["message"],
+                raw_data={
+                    "source": "facebook_webhook",
+                    "entry": entry,
+                    "change": change,
+                },
+            )
+
+            saved_count += 1
+
+    return {
+        "ok": True,
+        "session_id": session_id,
+        "saved_count": saved_count,
+        "ignored_count": ignored_count,
+    }
+</file>
+
+<file path="app/routes/live_sessions.py">
+import asyncio
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
+from app.services.database import get_connection
+from app.services.facebook_live_connector import (
+    find_current_facebook_live,
+    run_facebook_comment_poller,
+    seed_facebook_comments_once,
+)
+
+try:
+    from app.services.tiktok_live_connector import run_tiktok_comment_listener
+except ModuleNotFoundError:
+    run_tiktok_comment_listener = None
+
+
+router = APIRouter(prefix="/api/live-sessions", tags=["Live Sessions"])
+
+ACTIVE_TASKS: dict[str, Any] = {}
+
+NO_FACEBOOK_LIVE_MESSAGE = "Không tìm thấy Facebook Live đang phát. Hãy live trên Facebook trước rồi bấm kết nối."
+NO_LIVE_SESSION_MESSAGE = "Không tìm thấy phiên live."
+
+
+class ConnectFacebookPayload(BaseModel):
+    title: str | None = None
+    live_video_id: str | None = None
+
+
+class ConnectTikTokPayload(BaseModel):
+    title: str | None = None
+    username: str | None = None
+
+
+def row_to_session(row):
+    return {
+        "id": str(row[0]),
+        "title": row[1],
+        "platform": row[2],
+        "status": row[3],
+        "external_live_id": row[4],
+        "connection_status": row[5],
+        "started_at": row[6].isoformat() if row[6] else None,
+    }
+
+
+def find_active_session_by_external_live(platform: str, external_live_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select
+                    id,
+                    title,
+                    platform,
+                    status,
+                    external_live_id,
+                    connection_status,
+                    started_at
+                from live_sessions
+                where platform = %s
+                  and external_live_id = %s
+                  and status = 'active'
+                order by started_at desc
+                limit 1
+                """,
+                (
+                    platform,
+                    external_live_id,
+                ),
+            )
+
+            row = cur.fetchone()
+
+            if not row:
+                return None
+
+            return row_to_session(row)
+
+
+def create_live_session(
+    platform: str,
+    title: str,
+    external_live_id: str | None = None,
+):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                insert into live_sessions (
+                    title,
+                    platform,
+                    status,
+                    external_live_id,
+                    connection_status,
+                    started_at
+                )
+                values (%s, %s, 'active', %s, 'connecting', now())
+                returning
+                    id,
+                    title,
+                    platform,
+                    status,
+                    external_live_id,
+                    connection_status,
+                    started_at
+                """,
+                (
+                    title,
+                    platform,
+                    external_live_id,
+                ),
+            )
+
+            row = cur.fetchone()
+            conn.commit()
+
+            return row_to_session(row)
+
+
+def cancel_existing_task(session_id: str):
+    task = ACTIVE_TASKS.get(session_id)
+
+    if task and not task.done():
+        return task
+
+    return None
+
+
+def ensure_facebook_task(session_id: str, live_video_id: str):
+    current_task = cancel_existing_task(session_id)
+
+    if current_task:
+        return current_task
+
+    task = asyncio.create_task(
+        run_facebook_comment_poller(
+            session_id=session_id,
+            live_video_id=live_video_id,
+        )
+    )
+
+    ACTIVE_TASKS[session_id] = task
+
+    return task
+
+
+@router.get("")
+def get_live_sessions():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select
+                    ls.id,
+                    ls.title,
+                    ls.platform,
+                    ls.status,
+                    ls.external_live_id,
+                    ls.connection_status,
+                    ls.connected_at,
+                    ls.last_error,
+                    ls.started_at,
+                    count(lc.id) as comment_count
+                from live_sessions ls
+                left join live_comments lc on lc.session_id = ls.id
+                group by
+                    ls.id,
+                    ls.title,
+                    ls.platform,
+                    ls.status,
+                    ls.external_live_id,
+                    ls.connection_status,
+                    ls.connected_at,
+                    ls.last_error,
+                    ls.started_at
+                order by ls.started_at desc
+                limit 100
+                """
+            )
+
+            rows = cur.fetchall()
+
+            return [
+                {
+                    "id": str(row[0]),
+                    "title": row[1],
+                    "platform": row[2],
+                    "status": row[3],
+                    "external_live_id": row[4],
+                    "connection_status": row[5],
+                    "connected_at": row[6].isoformat() if row[6] else None,
+                    "last_error": row[7],
+                    "started_at": row[8].isoformat() if row[8] else None,
+                    "comment_count": row[9] or 0,
+                }
+                for row in rows
+            ]
+
+
+@router.post("/connect/facebook")
+async def connect_facebook_live(payload: ConnectFacebookPayload):
+    clean_live_video_id = (payload.live_video_id or "").strip()
+
+    if clean_live_video_id:
+        live_video_id = clean_live_video_id
+        title = payload.title or f"Facebook Video {live_video_id}"
+    else:
+        current_live = await find_current_facebook_live()
+
+        if not current_live:
+            raise HTTPException(status_code=404, detail=NO_FACEBOOK_LIVE_MESSAGE)
+
+        live_video_id = current_live.get("id")
+        title = (
+            payload.title
+            or current_live.get("title")
+            or f"Facebook Live {live_video_id}"
+        )
+
+    existing_session = find_active_session_by_external_live(
+        platform="facebook",
+        external_live_id=live_video_id,
+    )
+
+    if existing_session:
+        session = existing_session
+        session["reused"] = True
+    else:
+        session = create_live_session(
+            platform="facebook",
+            title=title,
+            external_live_id=live_video_id,
+        )
+        session["reused"] = False
+
+    ensure_facebook_task(
+        session_id=session["id"],
+        live_video_id=live_video_id,
+    )
+
+    try:
+        initial_count = await asyncio.wait_for(
+            seed_facebook_comments_once(
+                session_id=session["id"],
+                live_video_id=live_video_id,
+                limit=15,
+            ),
+            timeout=3,
+        )
+        session["initial_comment_count"] = initial_count
+    except Exception as error:
+        print("[Facebook Connect] Seed skipped/timeout:", error)
+        session["initial_comment_count"] = 0
+        session["seed_warning"] = "Seed is running in background."
+
+    return session
+
+
+@router.post("/connect/tiktok")
+async def connect_tiktok_live(payload: ConnectTikTokPayload):
+    if run_tiktok_comment_listener is None:
+        raise HTTPException(
+            status_code=400,
+            detail="TikTokLive package chưa được cài trong backend venv.",
+        )
+
+    username = (payload.username or "").replace("@", "").strip()
+
+    if not username:
+        raise HTTPException(status_code=400, detail="Vui lòng nhập username TikTok.")
+
+    existing_session = find_active_session_by_external_live(
+        platform="tiktok",
+        external_live_id=username,
+    )
+
+    if existing_session:
+        existing_session["reused"] = True
+        return existing_session
+
+    session = create_live_session(
+        platform="tiktok",
+        title=payload.title or f"TikTok Live @{username}",
+        external_live_id=username,
+    )
+
+    task = asyncio.create_task(
+        run_tiktok_comment_listener(
+            session_id=session["id"],
+            username=username,
+        )
+    )
+
+    ACTIVE_TASKS[session["id"]] = task
+
+    session["reused"] = False
+
+    return session
+
+
+@router.post("/{session_id}/end")
+def end_live_session(session_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update live_sessions
+                set status = 'ended',
+                    connection_status = 'ended',
+                    ended_at = now()
+                where id = %s
+                returning id
+                """,
+                (session_id,),
+            )
+
+            row = cur.fetchone()
+            conn.commit()
+
+            if not row:
+                raise HTTPException(status_code=404, detail=NO_LIVE_SESSION_MESSAGE)
+
+    task = ACTIVE_TASKS.pop(session_id, None)
+
+    if task:
+        task.cancel()
+
+    return {
+        "id": session_id,
+        "status": "ended",
+    }
+
+
+@router.get("/{session_id}/comments")
+def get_live_comments(session_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select
+                    id,
+                    session_id,
+                    platform,
+                    external_comment_id,
+                    customer_name,
+                    customer_avatar,
+                    customer_platform_id,
+                    message,
+                    status,
+                    created_at,
+                    order_id
+                from live_comments
+                where session_id = %s
+                order by created_at desc
+                limit 300
+                """,
+                (session_id,),
+            )
+
+            rows = cur.fetchall()
+
+            return [
+                {
+                    "id": str(row[0]),
+                    "session_id": str(row[1]),
+                    "platform": row[2],
+                    "external_comment_id": row[3],
+                    "customer_name": row[4],
+                    "customer_avatar": row[5],
+                    "customer_platform_id": row[6],
+                    "message": row[7],
+                    "status": row[8],
+                    "created_at": row[9].isoformat() if row[9] else None,
+                    "order_id": str(row[10]) if row[10] else None,
+                }
+                for row in rows
+            ]
+</file>
+
+<file path="app/routes/orders.py">
+from datetime import datetime
+from random import randint
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
+from app.services.database import get_connection
+from app.services.text_utils import fix_mojibake_text
+
+router = APIRouter(prefix="/api/orders", tags=["Orders"])
+
+OPEN_ORDER_STATUSES = ("new", "confirmed", "printed")
+DEFAULT_SHIPPING_FEE = 30000
+
+
+class OrderItemPayload(BaseModel):
+    product_id: str
+    quantity: int = Field(default=1, ge=1)
+    item_note: str | None = None
+
+
+class CreateOrderFromCommentPayload(BaseModel):
+    comment_id: str
+
+    customer_name: str | None = None
+    fb_name: str | None = None
+    customer_phone: str | None = None
+    fb_link: str | None = None
+
+    customer_address: str | None = None
+    province: str | None = None
+    district: str | None = None
+    ward: str | None = None
+    address_detail: str | None = None
+
+    shipping_fee: float = DEFAULT_SHIPPING_FEE
+    discount: float = 0
+    note: str | None = None
+
+    items: list[OrderItemPayload]
+
+
+class UpdateOrderStatusPayload(BaseModel):
+    status: str
+
+
+
+def fix_mojibake_text(value):
+    if value is None:
+        return None
+
+    if not isinstance(value, str):
+        return value
+
+    bad_markers = ["Ã", "Â", "Æ", "Ä", "áº", "á»", "�"]
+
+    def score(text):
+        total = 0
+        for marker in bad_markers:
+            total += text.count(marker) * 10
+        return total
+
+    original = value
+    candidates = {original}
+
+    for encoding in ["latin1", "cp1252"]:
+        try:
+            fixed = original.encode(encoding, errors="ignore").decode("utf-8", errors="ignore")
+            candidates.add(fixed)
+        except Exception:
+            pass
+
+    return min(candidates, key=score).strip()
+
+def normalize_text(value: str | None) -> str | None:
+    if value is None:
+        return None
+
+    value = str(value).strip()
+    value = fix_mojibake_text(value)
+
+    return value or None
+
+
+def normalize_phone(value: str | None) -> str | None:
+    value = normalize_text(value)
+
+    if not value:
+        return None
+
+    return (
+        value.replace(" ", "")
+        .replace(".", "")
+        .replace("-", "")
+        .replace("(", "")
+        .replace(")", "")
+    )
+
+
+def build_full_address(payload: CreateOrderFromCommentPayload) -> str | None:
+    direct_address = normalize_text(payload.customer_address)
+
+    if direct_address:
+        return direct_address
+
+    parts = [
+        normalize_text(payload.address_detail),
+        normalize_text(payload.ward),
+        normalize_text(payload.district),
+        normalize_text(payload.province),
+    ]
+
+    parts = [part for part in parts if part]
+
+    if not parts:
+        return None
+
+    return ", ".join(parts)
+
+
+def generate_order_code() -> str:
+    now = datetime.now().strftime("%Y%m%d%H%M%S%f")
+    suffix = randint(100, 999)
+    return f"ORD{now}{suffix}"
+
+
+def decimal_to_float(value: Any) -> float:
+    return float(value or 0)
+
+
+def get_or_create_customer(
+    cur,
+    customer_name: str,
+    customer_phone: str,
+    customer_address: str,
+    fb_name: str | None,
+    fb_link: str | None,
+    province: str | None,
+    district: str | None,
+    ward: str | None,
+    address_detail: str | None,
+    note: str | None,
+):
+    cur.execute(
+        """
+        select id
+        from customers
+        where phone = %s
+        order by created_at desc
+        limit 1
+        """,
+        (customer_phone,),
+    )
+
+    row = cur.fetchone()
+
+    if row:
+        customer_id = row[0]
+
+        cur.execute(
+            """
+            update customers
+            set name = %s,
+                phone = %s,
+                address = %s,
+                fb_name = %s,
+                fb_link = %s,
+                province = %s,
+                district = %s,
+                ward = %s,
+                address_detail = %s,
+                note = coalesce(%s, note)
+            where id = %s
+            """,
+            (
+                customer_name,
+                customer_phone,
+                customer_address,
+                fb_name,
+                fb_link,
+                province,
+                district,
+                ward,
+                address_detail,
+                note,
+                customer_id,
+            ),
+        )
+
+        return customer_id
+
+    cur.execute(
+        """
+        insert into customers (
+            name,
+            phone,
+            address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            note
+        )
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        returning id
+        """,
+        (
+            customer_name,
+            customer_phone,
+            customer_address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            note,
+        ),
+    )
+
+    new_customer = cur.fetchone()
+
+    return new_customer[0]
+
+
+def find_open_order(cur, session_id, customer_phone: str):
+    cur.execute(
+        """
+        select
+            id,
+            order_code,
+            shipping_fee,
+            discount,
+            status
+        from orders
+        where session_id = %s
+          and customer_phone = %s
+          and status in ('new', 'confirmed', 'printed')
+        order by created_at asc
+        limit 1
+        for update
+        """,
+        (
+            session_id,
+            customer_phone,
+        ),
+    )
+
+    return cur.fetchone()
+
+
+def create_new_order(
+    cur,
+    customer_id,
+    session_id,
+    source_comment_id: str,
+    customer_name: str,
+    customer_phone: str,
+    customer_address: str,
+    fb_name: str | None,
+    fb_link: str | None,
+    province: str | None,
+    district: str | None,
+    ward: str | None,
+    address_detail: str | None,
+    shipping_fee: float,
+    discount: float,
+    note: str | None,
+):
+    order_code = generate_order_code()
+
+    cur.execute(
+        """
+        insert into orders (
+            order_code,
+            customer_id,
+            session_id,
+            source_comment_id,
+            customer_name,
+            customer_phone,
+            customer_address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            subtotal,
+            shipping_fee,
+            discount,
+            total,
+            status,
+            note
+        )
+        values (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            0, %s, %s, 0, 'new', %s
+        )
+        returning id, order_code
+        """,
+        (
+            order_code,
+            customer_id,
+            session_id,
+            source_comment_id,
+            customer_name,
+            customer_phone,
+            customer_address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            shipping_fee,
+            discount,
+            note,
+        ),
+    )
+
+    return cur.fetchone()
+
+
+def update_order_customer_info(
+    cur,
+    order_id,
+    customer_id,
+    customer_name: str,
+    customer_phone: str,
+    customer_address: str,
+    fb_name: str | None,
+    fb_link: str | None,
+    province: str | None,
+    district: str | None,
+    ward: str | None,
+    address_detail: str | None,
+    shipping_fee: float,
+    discount: float,
+    note: str | None,
+):
+    cur.execute(
+        """
+        update orders
+        set customer_id = %s,
+            customer_name = %s,
+            customer_phone = %s,
+            customer_address = %s,
+            fb_name = %s,
+            fb_link = %s,
+            province = %s,
+            district = %s,
+            ward = %s,
+            address_detail = %s,
+            shipping_fee = case
+                when coalesce(shipping_fee, 0) = 0 then %s
+                else shipping_fee
+            end,
+            discount = case
+                when %s > 0 then %s
+                else discount
+            end,
+            note = coalesce(%s, note),
+            status = case
+                when status = 'printed' then 'printed'
+                else status
+            end
+        where id = %s
+        """,
+        (
+            customer_id,
+            customer_name,
+            customer_phone,
+            customer_address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            shipping_fee,
+            discount,
+            discount,
+            note,
+            order_id,
+        ),
+    )
+
+
+def recalculate_order_total(cur, order_id):
+    cur.execute(
+        """
+        select coalesce(sum(total), 0)
+        from order_items
+        where order_id = %s
+        """,
+        (order_id,),
+    )
+
+    subtotal = decimal_to_float(cur.fetchone()[0])
+
+    cur.execute(
+        """
+        update orders
+        set subtotal = %s,
+            total = %s + coalesce(shipping_fee, 0) - coalesce(discount, 0)
+        where id = %s
+        returning
+            id,
+            order_code,
+            subtotal,
+            shipping_fee,
+            discount,
+            total,
+            status,
+            created_at
+        """,
+        (
+            subtotal,
+            subtotal,
+            order_id,
+        ),
+    )
+
+    return cur.fetchone()
+
+
+def fetch_order_detail(cur, order_id):
+    cur.execute(
+        """
+        select
+            id,
+            order_code,
+            customer_id,
+            session_id,
+            source_comment_id,
+            customer_name,
+            customer_phone,
+            customer_address,
+            fb_name,
+            fb_link,
+            province,
+            district,
+            ward,
+            address_detail,
+            subtotal,
+            shipping_fee,
+            discount,
+            total,
+            status,
+            note,
+            created_at
+        from orders
+        where id = %s
+        """,
+        (order_id,),
+    )
+
+    order = cur.fetchone()
+
+    if not order:
+        return None
+
+    cur.execute(
+        """
+        select
+            id,
+            product_id,
+            product_code,
+            product_name,
+            quantity,
+            price,
+            total,
+            source_comment_id,
+            item_note,
+            print_count,
+            last_printed_at
+        from order_items
+        where order_id = %s
+        order by id asc
+        """,
+        (order_id,),
+    )
+
+    items = cur.fetchall()
+
+    return {
+        "id": str(order[0]),
+        "order_code": order[1],
+        "customer_id": str(order[2]) if order[2] else None,
+        "session_id": str(order[3]) if order[3] else None,
+        "source_comment_id": str(order[4]) if order[4] else None,
+        "customer_name": order[5],
+        "customer_phone": order[6],
+        "customer_address": order[7],
+        "fb_name": order[8],
+        "fb_link": order[9],
+        "province": order[10],
+        "district": order[11],
+        "ward": order[12],
+        "address_detail": order[13],
+        "subtotal": decimal_to_float(order[14]),
+        "shipping_fee": decimal_to_float(order[15]),
+        "discount": decimal_to_float(order[16]),
+        "total": decimal_to_float(order[17]),
+        "status": order[18],
+        "note": order[19],
+        "created_at": order[20].isoformat() if order[20] else None,
+        "items": [
+            {
+                "id": str(item[0]),
+                "product_id": str(item[1]) if item[1] else None,
+                "product_code": item[2],
+                "product_name": item[3],
+                "quantity": item[4],
+                "price": decimal_to_float(item[5]),
+                "total": decimal_to_float(item[6]),
+                "source_comment_id": str(item[7]) if item[7] else None,
+                "item_note": item[8],
+                "print_count": item[9] or 0,
+                "last_printed_at": item[10].isoformat() if item[10] else None,
+            }
+            for item in items
+        ],
+    }
+
+
+@router.get("")
+def get_orders():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select
+                    o.id,
+                    o.order_code,
+                    o.customer_name,
+                    o.fb_name,
+                    o.customer_phone,
+                    o.customer_address,
+                    o.total,
+                    o.status,
+                    o.note,
+                    o.created_at,
+                    o.session_id,
+                    count(oi.id) as item_count
+                from orders o
+                left join order_items oi on oi.order_id = o.id
+                group by
+                    o.id,
+                    o.order_code,
+                    o.customer_name,
+                    o.fb_name,
+                    o.customer_phone,
+                    o.customer_address,
+                    o.total,
+                    o.status,
+                    o.note,
+                    o.created_at,
+                    o.session_id
+                order by o.created_at desc
+                limit 200
+                """
+            )
+
+            rows = cur.fetchall()
+
+            return [
+                {
+                    "id": str(row[0]),
+                    "order_code": row[1],
+                    "customer_name": row[2],
+                    "fb_name": row[3],
+                    "customer_phone": row[4],
+                    "customer_address": row[5],
+                    "total": decimal_to_float(row[6]),
+                    "status": row[7],
+                    "note": row[8],
+                    "created_at": row[9].isoformat() if row[9] else None,
+                    "session_id": str(row[10]) if row[10] else None,
+                    "item_count": row[11] or 0,
+                }
+                for row in rows
+            ]
+
+
+@router.get("/{order_id}")
+def get_order_by_id(order_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            order = fetch_order_detail(cur, order_id)
+
+            if not order:
+                raise HTTPException(status_code=404, detail="Order not found.")
+
+            return order
+
+
+@router.post("/from-comment")
+def create_order_from_comment(payload: CreateOrderFromCommentPayload):
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="Please select at least one product.")
+
+    customer_name = normalize_text(payload.customer_name)
+    customer_phone = normalize_phone(payload.customer_phone)
+    fb_name = normalize_text(payload.fb_name)
+    fb_link = normalize_text(payload.fb_link)
+
+    province = normalize_text(payload.province)
+    district = normalize_text(payload.district)
+    ward = normalize_text(payload.ward)
+    address_detail = normalize_text(payload.address_detail)
+    customer_address = build_full_address(payload)
+
+    if not customer_name:
+        raise HTTPException(status_code=400, detail="Customer name is required.")
+
+    if not customer_phone:
+        raise HTTPException(status_code=400, detail="Customer phone is required.")
+
+    if not customer_address:
+        raise HTTPException(status_code=400, detail="Customer address is required.")
+
+    shipping_fee = float(payload.shipping_fee or DEFAULT_SHIPPING_FEE)
+    discount = float(payload.discount or 0)
+    order_note = normalize_text(payload.note)
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    select
+                        id,
+                        session_id,
+                        platform,
+                        customer_name,
+                        message,
+                        status,
+                        order_id
+                    from live_comments
+                    where id = %s
+                    for update
+                    """,
+                    (payload.comment_id,),
+                )
+
+                comment = cur.fetchone()
+
+                if not comment:
+                    raise HTTPException(status_code=404, detail="Comment not found.")
+
+                if comment[6]:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="This comment has already been added to an order.",
+                    )
+
+                session_id = comment[1]
+                comment_message = comment[4] or ""
+
+                customer_id = get_or_create_customer(
+                    cur=cur,
+                    customer_name=customer_name,
+                    customer_phone=customer_phone,
+                    customer_address=customer_address,
+                    fb_name=fb_name,
+                    fb_link=fb_link,
+                    province=province,
+                    district=district,
+                    ward=ward,
+                    address_detail=address_detail,
+                    note=f"From live comment: {comment_message}",
+                )
+
+                open_order = find_open_order(
+                    cur=cur,
+                    session_id=session_id,
+                    customer_phone=customer_phone,
+                )
+
+                merged_into_existing_order = open_order is not None
+
+                if open_order:
+                    order_id = open_order[0]
+                    order_code = open_order[1]
+
+                    update_order_customer_info(
+                        cur=cur,
+                        order_id=order_id,
+                        customer_id=customer_id,
+                        customer_name=customer_name,
+                        customer_phone=customer_phone,
+                        customer_address=customer_address,
+                        fb_name=fb_name,
+                        fb_link=fb_link,
+                        province=province,
+                        district=district,
+                        ward=ward,
+                        address_detail=address_detail,
+                        shipping_fee=shipping_fee,
+                        discount=discount,
+                        note=order_note,
+                    )
+                else:
+                    new_order = create_new_order(
+                        cur=cur,
+                        customer_id=customer_id,
+                        session_id=session_id,
+                        source_comment_id=payload.comment_id,
+                        customer_name=customer_name,
+                        customer_phone=customer_phone,
+                        customer_address=customer_address,
+                        fb_name=fb_name,
+                        fb_link=fb_link,
+                        province=province,
+                        district=district,
+                        ward=ward,
+                        address_detail=address_detail,
+                        shipping_fee=shipping_fee,
+                        discount=discount,
+                        note=order_note,
+                    )
+
+                    order_id = new_order[0]
+                    order_code = new_order[1]
+
+                added_items = []
+
+                for item in payload.items:
+                    cur.execute(
+                        """
+                        select
+                            id,
+                            code,
+                            name,
+                            price,
+                            stock
+                        from products
+                        where id = %s
+                          and is_active = true
+                        for update
+                        """,
+                        (item.product_id,),
+                    )
+
+                    product = cur.fetchone()
+
+                    if not product:
+                        raise HTTPException(status_code=404, detail="Product not found.")
+
+                    product_id = product[0]
+                    product_code = product[1]
+                    product_name = product[2]
+                    price = decimal_to_float(product[3])
+                    stock = int(product[4] or 0)
+                    quantity = int(item.quantity or 1)
+                    item_note = normalize_text(item.item_note)
+
+                    if stock < quantity:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Product {product_name} only has {stock} in stock.",
+                        )
+
+                    item_total = price * quantity
+
+                    cur.execute(
+                        """
+                        insert into order_items (
+                            order_id,
+                            product_id,
+                            product_code,
+                            product_name,
+                            quantity,
+                            price,
+                            total,
+                            source_comment_id,
+                            item_note,
+                            print_count
+                        )
+                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, 0)
+                        returning id
+                        """,
+                        (
+                            order_id,
+                            product_id,
+                            product_code,
+                            product_name,
+                            quantity,
+                            price,
+                            item_total,
+                            payload.comment_id,
+                            item_note,
+                        ),
+                    )
+
+                    order_item_id = cur.fetchone()[0]
+
+                    cur.execute(
+                        """
+                        update products
+                        set stock = stock - %s
+                        where id = %s
+                        """,
+                        (
+                            quantity,
+                            product_id,
+                        ),
+                    )
+
+                    added_items.append(
+                        {
+                            "id": str(order_item_id),
+                            "product_id": str(product_id),
+                            "product_code": product_code,
+                            "product_name": product_name,
+                            "quantity": quantity,
+                            "price": price,
+                            "total": item_total,
+                            "source_comment_id": payload.comment_id,
+                            "item_note": item_note,
+                        }
+                    )
+
+                recalculate_order_total(cur, order_id)
+
+                cur.execute(
+                    """
+                    update live_comments
+                    set status = 'used',
+                        order_id = %s
+                    where id = %s
+                    """,
+                    (
+                        order_id,
+                        payload.comment_id,
+                    ),
+                )
+
+                order_detail = fetch_order_detail(cur, order_id)
+
+                conn.commit()
+
+                return {
+                    **order_detail,
+                    "merged": merged_into_existing_order,
+                    "added_items": added_items,
+                    "message": "Added items to existing order."
+                    if merged_into_existing_order
+                    else "Created new order.",
+                }
+
+            except HTTPException:
+                conn.rollback()
+                raise
+
+            except Exception as error:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(error))
+
+
+@router.post("/{order_id}/items/{item_id}/print")
+def mark_order_item_printed(order_id: str, item_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update order_items
+                set print_count = coalesce(print_count, 0) + 1,
+                    last_printed_at = now()
+                where id = %s
+                  and order_id = %s
+                returning
+                    id,
+                    product_code,
+                    product_name,
+                    quantity,
+                    item_note,
+                    print_count,
+                    last_printed_at
+                """,
+                (
+                    item_id,
+                    order_id,
+                ),
+            )
+
+            item = cur.fetchone()
+
+            if not item:
+                raise HTTPException(status_code=404, detail="Order item not found.")
+
+            order = fetch_order_detail(cur, order_id)
+
+            conn.commit()
+
+            return {
+                "order_id": order_id,
+                "order_code": order["order_code"],
+                "customer_name": order["customer_name"],
+                "customer_phone": order["customer_phone"],
+                "customer_address": order["customer_address"],
+                "fb_name": order["fb_name"],
+                "fb_link": order["fb_link"],
+                "item": {
+                    "id": str(item[0]),
+                    "product_code": item[1],
+                    "product_name": item[2],
+                    "quantity": item[3],
+                    "item_note": item[4],
+                    "print_count": item[5],
+                    "last_printed_at": item[6].isoformat() if item[6] else None,
+                },
+            }
+
+
+@router.put("/{order_id}/status")
+def update_order_status(order_id: str, payload: UpdateOrderStatusPayload):
+    allowed_statuses = ["new", "confirmed", "printed", "shipped", "done", "cancelled"]
+
+    if payload.status not in allowed_statuses:
+        raise HTTPException(status_code=400, detail="Invalid order status.")
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update orders
+                set status = %s
+                where id = %s
+                returning id, status
+                """,
+                (
+                    payload.status,
+                    order_id,
+                ),
+            )
+
+            row = cur.fetchone()
+            conn.commit()
+
+            if not row:
+                raise HTTPException(status_code=404, detail="Order not found.")
+
+            return {
+                "id": str(row[0]),
+                "status": row[1],
+            }
+
+
+@router.delete("/{order_id}")
+def cancel_order(order_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    select status
+                    from orders
+                    where id = %s
+                    for update
+                    """,
+                    (order_id,),
+                )
+
+                order = cur.fetchone()
+
+                if not order:
+                    raise HTTPException(status_code=404, detail="Order not found.")
+
+                if order[0] == "cancelled":
+                    return {
+                        "id": order_id,
+                        "status": "cancelled",
+                    }
+
+                cur.execute(
+                    """
+                    select product_id, quantity
+                    from order_items
+                    where order_id = %s
+                    """,
+                    (order_id,),
+                )
+
+                items = cur.fetchall()
+
+                for item in items:
+                    product_id = item[0]
+                    quantity = item[1]
+
+                    if product_id:
+                        cur.execute(
+                            """
+                            update products
+                            set stock = stock + %s
+                            where id = %s
+                            """,
+                            (
+                                quantity,
+                                product_id,
+                            ),
+                        )
+
+                cur.execute(
+                    """
+                    update orders
+                    set status = 'cancelled'
+                    where id = %s
+                    """,
+                    (order_id,),
+                )
+
+                cur.execute(
+                    """
+                    update live_comments
+                    set status = 'new',
+                        order_id = null
+                    where order_id = %s
+                    """,
+                    (order_id,),
+                )
+
+                conn.commit()
+
+                return {
+                    "id": order_id,
+                    "status": "cancelled",
+                }
+
+            except HTTPException:
+                conn.rollback()
+                raise
+
+            except Exception as error:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(error))
+</file>
+
+<file path="app/routes/products.py">
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+from app.services.database import get_connection
+
+router = APIRouter(prefix="/api/products", tags=["Products"])
+
+
+class ProductCreate(BaseModel):
+    code: str
+    name: str
+    category_id: str | None = None
+    price: float = 0
+    stock: int = 0
+    image_url: str | None = None
+    image_urls: list[str] = Field(default_factory=list)
+    note: str | None = None
+
+
+class ProductUpdate(BaseModel):
+    code: str | None = None
+    name: str | None = None
+    category_id: str | None = None
+    price: float | None = None
+    stock: int | None = None
+    image_url: str | None = None
+    image_urls: list[str] | None = None
+    note: str | None = None
+
+
+def map_product_row(row):
+    return {
+        "id": str(row[0]),
+        "code": row[1],
+        "name": row[2],
+        "price": float(row[3]),
+        "stock": row[4],
+        "image_url": row[5],
+        "note": row[6],
+        "is_active": row[7],
+        "created_at": row[8].isoformat() if row[8] else None,
+        "category_id": str(row[9]) if row[9] else None,
+        "category_name": row[10],
+        "images": row[11] or [],
+    }
+
+
+@router.get("")
+def get_products():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select
+                    p.id,
+                    p.code,
+                    p.name,
+                    p.price,
+                    p.stock,
+                    p.image_url,
+                    p.note,
+                    p.is_active,
+                    p.created_at,
+                    p.category_id,
+                    c.name as category_name,
+                    coalesce(
+                        json_agg(
+                            json_build_object(
+                                'id', pi.id,
+                                'image_url', pi.image_url,
+                                'sort_order', pi.sort_order
+                            )
+                            order by pi.sort_order asc, pi.created_at asc
+                        ) filter (where pi.id is not null),
+                        '[]'::json
+                    ) as images
+                from products p
+                left join product_categories c on c.id = p.category_id
+                left join product_images pi on pi.product_id = p.id
+                where p.is_active = true
+                group by
+                    p.id,
+                    p.code,
+                    p.name,
+                    p.price,
+                    p.stock,
+                    p.image_url,
+                    p.note,
+                    p.is_active,
+                    p.created_at,
+                    p.category_id,
+                    c.name
+                order by p.created_at desc
+                """
+            )
+
+            rows = cur.fetchall()
+            return [map_product_row(row) for row in rows]
+
+
+@router.post("")
+def create_product(payload: ProductCreate):
+    image_urls = payload.image_urls or []
+
+    if payload.image_url and payload.image_url not in image_urls:
+        image_urls.insert(0, payload.image_url)
+
+    main_image_url = image_urls[0] if image_urls else None
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    insert into products (
+                        code,
+                        name,
+                        category_id,
+                        price,
+                        stock,
+                        image_url,
+                        note
+                    )
+                    values (%s, %s, %s, %s, %s, %s, %s)
+                    returning
+                        id,
+                        code,
+                        name,
+                        price,
+                        stock,
+                        image_url,
+                        note,
+                        is_active,
+                        created_at,
+                        category_id
+                    """,
+                    (
+                        payload.code.strip().upper(),
+                        payload.name.strip(),
+                        payload.category_id,
+                        payload.price,
+                        payload.stock,
+                        main_image_url,
+                        payload.note,
+                    ),
+                )
+
+                row = cur.fetchone()
+
+                if not row:
+                    raise HTTPException(status_code=400, detail="Cannot create product")
+
+                product_id = row[0]
+
+                for index, image_url in enumerate(image_urls):
+                    if not image_url:
+                        continue
+
+                    cur.execute(
+                        """
+                        insert into product_images (
+                            product_id,
+                            image_url,
+                            sort_order
+                        )
+                        values (%s, %s, %s)
+                        """,
+                        (
+                            product_id,
+                            image_url,
+                            index,
+                        ),
+                    )
+
+                conn.commit()
+
+                return {
+                    "id": str(row[0]),
+                    "code": row[1],
+                    "name": row[2],
+                    "price": float(row[3]),
+                    "stock": row[4],
+                    "image_url": row[5],
+                    "note": row[6],
+                    "is_active": row[7],
+                    "created_at": row[8].isoformat() if row[8] else None,
+                    "category_id": str(row[9]) if row[9] else None,
+                    "images": [
+                        {
+                            "image_url": url,
+                            "sort_order": index,
+                        }
+                        for index, url in enumerate(image_urls)
+                    ],
+                }
+
+            except Exception as e:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.put("/{product_id}")
+def update_product(product_id: str, payload: ProductUpdate):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    select
+                        id,
+                        code,
+                        name,
+                        category_id,
+                        price,
+                        stock,
+                        image_url,
+                        note
+                    from products
+                    where id = %s
+                      and is_active = true
+                    """,
+                    (product_id,),
+                )
+
+                current = cur.fetchone()
+
+                if not current:
+                    raise HTTPException(status_code=404, detail="Product not found")
+
+                code = payload.code.strip().upper() if payload.code is not None else current[1]
+                name = payload.name.strip() if payload.name is not None else current[2]
+                category_id = payload.category_id if payload.category_id is not None else current[3]
+                price = payload.price if payload.price is not None else current[4]
+                stock = payload.stock if payload.stock is not None else current[5]
+                note = payload.note if payload.note is not None else current[7]
+
+                if payload.image_urls is not None:
+                    image_urls = payload.image_urls or []
+                    main_image_url = image_urls[0] if image_urls else None
+                elif payload.image_url is not None:
+                    image_urls = [payload.image_url] if payload.image_url else []
+                    main_image_url = payload.image_url
+                else:
+                    image_urls = None
+                    main_image_url = current[6]
+
+                cur.execute(
+                    """
+                    update products
+                    set
+                        code = %s,
+                        name = %s,
+                        category_id = %s,
+                        price = %s,
+                        stock = %s,
+                        image_url = %s,
+                        note = %s
+                    where id = %s
+                      and is_active = true
+                    returning
+                        id,
+                        code,
+                        name,
+                        price,
+                        stock,
+                        image_url,
+                        note,
+                        is_active,
+                        created_at,
+                        category_id
+                    """,
+                    (
+                        code,
+                        name,
+                        category_id,
+                        price,
+                        stock,
+                        main_image_url,
+                        note,
+                        product_id,
+                    ),
+                )
+
+                updated = cur.fetchone()
+
+                if not updated:
+                    raise HTTPException(status_code=400, detail="Cannot update product")
+
+                if image_urls is not None:
+                    cur.execute(
+                        """
+                        delete from product_images
+                        where product_id = %s
+                        """,
+                        (product_id,),
+                    )
+
+                    for index, image_url in enumerate(image_urls):
+                        if not image_url:
+                            continue
+
+                        cur.execute(
+                            """
+                            insert into product_images (
+                                product_id,
+                                image_url,
+                                sort_order
+                            )
+                            values (%s, %s, %s)
+                            """,
+                            (
+                                product_id,
+                                image_url,
+                                index,
+                            ),
+                        )
+
+                conn.commit()
+
+                return {
+                    "id": str(updated[0]),
+                    "code": updated[1],
+                    "name": updated[2],
+                    "price": float(updated[3]),
+                    "stock": updated[4],
+                    "image_url": updated[5],
+                    "note": updated[6],
+                    "is_active": updated[7],
+                    "created_at": updated[8].isoformat() if updated[8] else None,
+                    "category_id": str(updated[9]) if updated[9] else None,
+                }
+
+            except HTTPException:
+                conn.rollback()
+                raise
+
+            except Exception as e:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/{product_id}")
+def delete_product(product_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            try:
+                cur.execute(
+                    """
+                    update products
+                    set is_active = false
+                    where id = %s
+                      and is_active = true
+                    returning id
+                    """,
+                    (product_id,),
+                )
+
+                row = cur.fetchone()
+
+                if not row:
+                    raise HTTPException(status_code=404, detail="Product not found")
+
+                conn.commit()
+
+                return {
+                    "message": "Product deleted successfully",
+                    "id": str(row[0]),
+                }
+
+            except HTTPException:
+                conn.rollback()
+                raise
+
+            except Exception as e:
+                conn.rollback()
+                raise HTTPException(status_code=400, detail=str(e))
+</file>
+
+<file path="app/schemas/__init__.py">
+
+</file>
+
+<file path="app/services/__init__.py">
+
+</file>
+
+<file path="app/services/database.py">
+import os
+from pathlib import Path
+
+import psycopg
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+ENV_PATH = BASE_DIR / ".env"
+
+load_dotenv(dotenv_path=ENV_PATH)
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
+
+
+def get_connection():
+    if not DATABASE_URL:
+        raise RuntimeError(
+            f"Missing DATABASE_URL. Checked env file at: {ENV_PATH}"
+        )
+
+    return psycopg.connect(
+        DATABASE_URL,
+        connect_timeout=DB_CONNECT_TIMEOUT,
+    )
+</file>
+
+<file path="app/services/facebook_live_connector.py">
+import asyncio
+import os
+from pathlib import Path
+
+import httpx
+from dotenv import load_dotenv
+from psycopg.types.json import Jsonb
+
+from app.services.database import get_connection
+from app.services.live_comment_service import (
+    is_live_session_active,
+    mark_session_connected,
+    mark_session_ended,
+    mark_session_error,
+)
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+ENV_PATH = BASE_DIR / ".env"
+
+load_dotenv(dotenv_path=ENV_PATH)
+
+FACEBOOK_GRAPH_VERSION = os.getenv("FACEBOOK_GRAPH_VERSION", "v25.0")
+FACEBOOK_PAGE_ID = os.getenv("FACEBOOK_PAGE_ID")
+FACEBOOK_PAGE_ACCESS_TOKEN = (
+    os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
+    or os.getenv("FACEBOOK_ACCESS_TOKEN")
+)
+
+GRAPH_BASE_URL = f"https://graph.facebook.com/{FACEBOOK_GRAPH_VERSION}"
+
+SESSION_SEEN_COMMENT_IDS: dict[str, set[str]] = {}
+
+
+def validate_facebook_config():
+    missing = []
+
+    if not FACEBOOK_PAGE_ID:
+        missing.append("FACEBOOK_PAGE_ID")
+
+    if not FACEBOOK_PAGE_ACCESS_TOKEN:
+        missing.append("FACEBOOK_PAGE_ACCESS_TOKEN")
+
+    if missing:
+        raise RuntimeError(
+            "Missing Facebook config: "
+            + ", ".join(missing)
+            + f". Checked env file at: {ENV_PATH}"
+        )
+
+
+async def find_current_facebook_live():
+    validate_facebook_config()
+
+    url = f"{GRAPH_BASE_URL}/{FACEBOOK_PAGE_ID}/live_videos"
+
+    params = {
+        "fields": "id,title,status,creation_time,permalink_url",
+        "limit": 10,
+        "access_token": FACEBOOK_PAGE_ACCESS_TOKEN,
+    }
+
+    async with httpx.AsyncClient(timeout=12) as client:
+        response = await client.get(url, params=params)
+
+        if response.status_code >= 400:
+            raise RuntimeError(response.text)
+
+        videos = response.json().get("data", [])
+
+    print("[Facebook] live_videos count:", len(videos))
+
+    for item in videos:
+        status = str(item.get("status") or "").upper()
+
+        if status in ["LIVE", "LIVE_NOW"]:
+            print("[Facebook] Found current live:", item.get("id"))
+            return item
+
+    print("[Facebook] No current LIVE video found.")
+    return None
+
+
+async def fetch_facebook_comments(live_video_id: str, limit: int = 25):
+    validate_facebook_config()
+
+    url = f"{GRAPH_BASE_URL}/{live_video_id}/comments"
+
+    params = {
+        "fields": "id,from{id,name},message,created_time",
+        "order": "reverse_chronological",
+        "limit": limit,
+        "access_token": FACEBOOK_PAGE_ACCESS_TOKEN,
+    }
+
+    async with httpx.AsyncClient(timeout=12) as client:
+        response = await client.get(url, params=params)
+
+        if response.status_code >= 400:
+            raise RuntimeError(response.text)
+
+        payload = response.json()
+
+    return payload.get("data", [])
+
+
+def get_existing_comment_ids(session_id: str, limit: int = 1000):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select external_comment_id
+                from live_comments
+                where session_id = %s
+                  and external_comment_id is not null
+                order by created_at desc
+                limit %s
+                """,
+                (
+                    session_id,
+                    limit,
+                ),
+            )
+
+            rows = cur.fetchall()
+
+            return {row[0] for row in rows if row[0]}
+
+
+def save_facebook_comments_batch(
+    session_id: str,
+    comments: list[dict],
+    seen_ids: set[str] | None = None,
+):
+    if not comments:
+        return 0
+
+    rows_to_insert = []
+
+    for comment in comments:
+        external_comment_id = comment.get("id")
+        message = comment.get("message") or ""
+
+        if not external_comment_id and not message:
+            continue
+
+        if seen_ids is not None and external_comment_id in seen_ids:
+            continue
+
+        from_user = comment.get("from") or {}
+
+        rows_to_insert.append(
+            (
+                session_id,
+                external_comment_id,
+                from_user.get("name"),
+                from_user.get("id"),
+                message,
+                Jsonb(comment),
+            )
+        )
+
+    if not rows_to_insert:
+        return 0
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.executemany(
+                """
+                insert into live_comments (
+                    session_id,
+                    platform,
+                    external_comment_id,
+                    customer_name,
+                    customer_avatar,
+                    customer_platform_id,
+                    message,
+                    status,
+                    raw_data,
+                    created_at
+                )
+                values (%s, 'facebook', %s, %s, null, %s, %s, 'new', %s, now())
+                on conflict (platform, external_comment_id)
+                where external_comment_id is not null
+                do nothing
+                """,
+                rows_to_insert,
+            )
+
+            conn.commit()
+
+    if seen_ids is not None:
+        for row in rows_to_insert:
+            if row[1]:
+                seen_ids.add(row[1])
+
+    return len(rows_to_insert)
+
+
+async def seed_facebook_comments_once(
+    session_id: str,
+    live_video_id: str,
+    limit: int = 25,
+):
+    seen_ids = SESSION_SEEN_COMMENT_IDS.setdefault(
+        session_id,
+        get_existing_comment_ids(session_id),
+    )
+
+    comments = await fetch_facebook_comments(live_video_id, limit=limit)
+
+    saved = save_facebook_comments_batch(
+        session_id=session_id,
+        comments=comments,
+        seen_ids=seen_ids,
+    )
+
+    print(
+        f"[Facebook Seed] session={session_id} fetched={len(comments)} new_saved={saved}"
+    )
+
+    return saved
+
+
+async def run_facebook_comment_poller(session_id: str, live_video_id: str):
+    try:
+        print(
+            f"[Facebook Poller] START session={session_id} live_video_id={live_video_id}"
+        )
+
+        mark_session_connected(session_id)
+
+        seen_ids = SESSION_SEEN_COMMENT_IDS.setdefault(
+            session_id,
+            get_existing_comment_ids(session_id),
+        )
+
+        while is_live_session_active(session_id):
+            comments = await fetch_facebook_comments(live_video_id, limit=25)
+
+            saved = save_facebook_comments_batch(
+                session_id=session_id,
+                comments=comments,
+                seen_ids=seen_ids,
+            )
+
+            print(
+                f"[Facebook Poller] session={session_id} fetched={len(comments)} new_saved={saved}"
+            )
+
+            await asyncio.sleep(2)
+
+        mark_session_ended(session_id)
+
+    except asyncio.CancelledError:
+        print(f"[Facebook Poller] CANCELLED session={session_id}")
+        raise
+
+    except Exception as error:
+        print(f"[Facebook Poller] ERROR session={session_id}: {error}")
+        mark_session_error(session_id, str(error))
+</file>
+
+<file path="app/services/live_comment_service.py">
+import json
+from typing import Any
+
+from psycopg.types.json import Jsonb
+
+from app.services.database import get_connection
+
+
+def insert_live_comment(
+    session_id: str,
+    platform: str,
+    external_comment_id: str | None,
+    customer_name: str | None,
+    customer_avatar: str | None = None,
+    customer_platform_id: str | None = None,
+    message: str = "",
+    raw_data: dict[str, Any] | None = None,
+):
+    if not message and not raw_data:
+        return None
+
+    raw_data = raw_data or {}
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                insert into live_comments (
+                    session_id,
+                    platform,
+                    external_comment_id,
+                    customer_name,
+                    customer_avatar,
+                    customer_platform_id,
+                    message,
+                    status,
+                    raw_data,
+                    created_at
+                )
+                values (%s, %s, %s, %s, %s, %s, %s, 'new', %s, now())
+                on conflict (platform, external_comment_id)
+                where external_comment_id is not null
+                do update set
+                    customer_name = coalesce(excluded.customer_name, live_comments.customer_name),
+                    customer_avatar = coalesce(excluded.customer_avatar, live_comments.customer_avatar),
+                    customer_platform_id = coalesce(excluded.customer_platform_id, live_comments.customer_platform_id),
+                    message = coalesce(nullif(excluded.message, ''), live_comments.message),
+                    raw_data = excluded.raw_data
+                returning id
+                """,
+                (
+                    session_id,
+                    platform,
+                    external_comment_id,
+                    customer_name,
+                    customer_avatar,
+                    customer_platform_id,
+                    message,
+                    Jsonb(raw_data),
+                ),
+            )
+
+            row = cur.fetchone()
+            conn.commit()
+
+            return str(row[0]) if row else None
+
+
+def is_live_session_active(session_id: str) -> bool:
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select status
+                from live_sessions
+                where id = %s
+                """,
+                (session_id,),
+            )
+
+            row = cur.fetchone()
+
+            if not row:
+                return False
+
+            return row[0] == "active"
+
+
+def mark_session_connected(session_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update live_sessions
+                set connection_status = 'connected',
+                    connected_at = now(),
+                    last_error = null
+                where id = %s
+                """,
+                (session_id,),
+            )
+
+            conn.commit()
+
+
+def mark_session_error(session_id: str, message: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update live_sessions
+                set connection_status = 'error',
+                    last_error = %s
+                where id = %s
+                """,
+                (message, session_id),
+            )
+
+            conn.commit()
+
+
+def mark_session_ended(session_id: str):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                update live_sessions
+                set status = 'ended',
+                    connection_status = 'ended',
+                    ended_at = now()
+                where id = %s
+                """,
+                (session_id,),
+            )
+
+            conn.commit()
+</file>
+
+<file path="app/services/text_utils.py">
+import re
+import unicodedata
+
+
+MOJIBAKE_MARKERS = [
+    "Ã",
+    "Â",
+    "Æ",
+    "Ä",
+    "áº",
+    "á»",
+    "á»",
+    "�",
+]
+
+
+def score_text(value: str) -> int:
+    if not value:
+        return 0
+
+    score = 0
+
+    for marker in MOJIBAKE_MARKERS:
+        score += value.count(marker) * 10
+
+    score += len(re.findall(r"[A-Za-z]�", value)) * 5
+
+    return score
+
+
+def try_decode_once(value: str, encoding: str):
+    try:
+        return value.encode(encoding).decode("utf-8")
+    except Exception:
+        return value
+
+
+def fix_mojibake_text(value):
+    if value is None:
+        return None
+
+    if not isinstance(value, str):
+        return value
+
+    original = value
+
+    candidates = {original}
+
+    for encoding in ["latin1", "cp1252"]:
+        decoded = try_decode_once(original, encoding)
+        candidates.add(decoded)
+
+        decoded_twice = try_decode_once(decoded, encoding)
+        candidates.add(decoded_twice)
+
+    best = min(candidates, key=score_text)
+    best = unicodedata.normalize("NFC", best)
+
+    # Dọn khoảng trắng thừa
+    best = re.sub(r"\s+", " ", best).strip()
+
+    return best
+</file>
+
+<file path="app/services/tiktok_live_connector.py">
+import os
+import time
+
+from dotenv import load_dotenv
+from TikTokLive import TikTokLiveClient
+from TikTokLive.events import CommentEvent, ConnectEvent, DisconnectEvent
+
+from app.services.live_comment_service import (
+    insert_live_comment,
+    mark_session_connected,
+    mark_session_ended,
+    mark_session_error,
+)
+
+load_dotenv()
+
+TIKTOK_USERNAME = os.getenv("TIKTOK_USERNAME", "")
+
+
+def normalize_tiktok_username(username: str):
+    username = (username or "").strip()
+    if not username:
+        username = TIKTOK_USERNAME
+
+    username = username.strip()
+
+    if not username.startswith("@"):
+        username = f"@{username}"
+
+    return username
+
+
+async def run_tiktok_comment_listener(session_id: str, username: str | None = None):
+    unique_id = normalize_tiktok_username(username)
+
+    if not unique_id:
+        mark_session_error(session_id, "Missing TikTok username")
+        return
+
+    client = TikTokLiveClient(unique_id=unique_id)
+
+    @client.on(ConnectEvent)
+    async def on_connect(event: ConnectEvent):
+        mark_session_connected(session_id)
+
+    @client.on(CommentEvent)
+    async def on_comment(event: CommentEvent):
+        user = getattr(event, "user", None)
+
+        nickname = getattr(user, "nickname", None) if user else None
+        unique_id_user = getattr(user, "unique_id", None) if user else None
+        avatar = getattr(user, "avatar_thumb", None) if user else None
+
+        external_comment_id = (
+            str(getattr(event, "id", "") or "")
+            or str(getattr(event, "msg_id", "") or "")
+            or f"tiktok-{unique_id_user}-{time.time_ns()}"
+        )
+
+        insert_live_comment(
+            session_id=session_id,
+            platform="tiktok",
+            external_comment_id=external_comment_id,
+            customer_name=nickname or unique_id_user,
+            customer_avatar=str(avatar) if avatar else None,
+            customer_platform_id=str(unique_id_user) if unique_id_user else None,
+            message=getattr(event, "comment", "") or "",
+            raw_data={
+                "unique_id": unique_id,
+                "customer_name": nickname,
+                "customer_unique_id": unique_id_user,
+                "comment": getattr(event, "comment", ""),
+            },
+        )
+
+    @client.on(DisconnectEvent)
+    async def on_disconnect(event: DisconnectEvent):
+        mark_session_ended(session_id)
+
+    try:
+        await client.start()
+    except Exception as error:
+        mark_session_error(session_id, str(error))
+</file>
+
+<file path="backfill_facebook_comment_profiles.py">
+import asyncio
+import os
+import sys
+from pathlib import Path
+
+import httpx
+from dotenv import load_dotenv
+
+from app.services.database import get_connection
+
+BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
+
+load_dotenv(dotenv_path=ENV_PATH)
+
+FACEBOOK_GRAPH_VERSION = os.getenv("FACEBOOK_GRAPH_VERSION", "v25.0")
+FACEBOOK_PAGE_ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
+
+GRAPH_BASE_URL = f"https://graph.facebook.com/{FACEBOOK_GRAPH_VERSION}"
+
+
+async def get_avatar(client, facebook_user_id):
+    if not facebook_user_id:
+        return None
+
+    try:
+        response = await client.get(
+            f"{GRAPH_BASE_URL}/{facebook_user_id}/picture",
+            params={
+                "type": "normal",
+                "redirect": "false",
+                "access_token": FACEBOOK_PAGE_ACCESS_TOKEN,
+            },
+            timeout=20,
+        )
+
+        if response.status_code >= 400:
+            return None
+
+        payload = response.json()
+        data = payload.get("data") or {}
+
+        return data.get("url")
+
+    except Exception:
+        return None
+
+
+async def fetch_facebook_comments(video_id):
+    comments = []
+
+    url = f"{GRAPH_BASE_URL}/{video_id}/comments"
+
+    params = {
+        "fields": "id,from{id,name},message,created_time",
+        "order": "chronological",
+        "limit": 100,
+        "access_token": FACEBOOK_PAGE_ACCESS_TOKEN,
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        while url:
+            response = await client.get(url, params=params)
+
+            if response.status_code >= 400:
+                raise RuntimeError(response.text)
+
+            payload = response.json()
+            data = payload.get("data", [])
+
+            for comment in data:
+                from_user = comment.get("from") or {}
+                facebook_user_id = from_user.get("id")
+                avatar = await get_avatar(client, facebook_user_id)
+                comment["_avatar"] = avatar
+                comments.append(comment)
+
+            paging = payload.get("paging") or {}
+            url = paging.get("next")
+            params = None
+
+            if len(comments) >= 1000:
+                break
+
+    return comments
+
+
+def get_session_video_id(session_id):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select external_live_id, title
+                from live_sessions
+                where id = %s
+                """,
+                (session_id,),
+            )
+
+            row = cur.fetchone()
+
+            if not row:
+                raise RuntimeError("Không tìm thấy phiên live.")
+
+            return row[0], row[1]
+
+
+async def main():
+    if len(sys.argv) < 2:
+        raise RuntimeError("Vui lòng truyền session_id. Ví dụ: python backfill_facebook_comment_profiles.py <session_id>")
+
+    session_id = sys.argv[1]
+
+    if not FACEBOOK_PAGE_ACCESS_TOKEN:
+        raise RuntimeError("Missing FACEBOOK_PAGE_ACCESS_TOKEN trong .env")
+
+    video_id, title = get_session_video_id(session_id)
+
+    if not video_id:
+        raise RuntimeError("Phiên live này không có external_live_id.")
+
+    print("Session:", session_id)
+    print("Title:", title)
+    print("Facebook video/live ID:", video_id)
+    print("Đang lấy comment từ Facebook...")
+
+    comments = await fetch_facebook_comments(video_id)
+
+    updated = 0
+    missing_from = 0
+    not_found = 0
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            for comment in comments:
+                external_comment_id = comment.get("id")
+                from_user = comment.get("from") or {}
+
+                facebook_user_id = from_user.get("id")
+                facebook_name = from_user.get("name")
+                avatar = comment.get("_avatar")
+
+                if not facebook_user_id and not facebook_name:
+                    missing_from += 1
+                    continue
+
+                cur.execute(
+                    """
+                    update live_comments
+                    set customer_name = %s,
+                        customer_platform_id = %s,
+                        customer_avatar = %s,
+                        raw_data = %s
+                    where session_id = %s
+                      and external_comment_id = %s
+                    returning id
+                    """,
+                    (
+                        facebook_name,
+                        facebook_user_id,
+                        avatar,
+                        str(comment),
+                        session_id,
+                        external_comment_id,
+                    ),
+                )
+
+                row = cur.fetchone()
+
+                if row:
+                    updated += 1
+                else:
+                    not_found += 1
+
+            conn.commit()
+
+    print("Tổng comment Facebook lấy được:", len(comments))
+    print("Đã cập nhật tên/avatar:", updated)
+    print("Không có field from:", missing_from)
+    print("Không tìm thấy comment trong DB:", not_found)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</file>
+
+<file path="check_facebook_live_now.py">
+import os
+import json
+import httpx
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
+TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
+PAGE_ID = os.getenv("FACEBOOK_PAGE_ID")
+VERSION = os.getenv("FACEBOOK_GRAPH_VERSION", "v25.0")
+
+if not TOKEN:
+    raise RuntimeError("Missing FACEBOOK_PAGE_ACCESS_TOKEN")
+
+if not PAGE_ID:
+    raise RuntimeError("Missing FACEBOOK_PAGE_ID")
+
+GRAPH = f"https://graph.facebook.com/{VERSION}"
+
+print("PAGE_ID:", PAGE_ID)
+print("Đang kiểm tra live videos...")
+
+r = httpx.get(
+    f"{GRAPH}/{PAGE_ID}/live_videos",
+    params={
+        "fields": "id,title,status,creation_time,permalink_url",
+        "limit": 10,
+        "access_token": TOKEN,
+    },
+    timeout=20,
+)
+
+print("Status:", r.status_code)
+data = r.json()
+print(json.dumps(data, ensure_ascii=False, indent=2))
+
+print("\n===== KIỂM TRA COMMENT TỪNG LIVE VIDEO =====")
+
+for item in data.get("data", []):
+    video_id = item.get("id")
+    title = item.get("title")
+    status = item.get("status")
+
+    print("\nVideo ID:", video_id)
+    print("Title:", title)
+    print("Status:", status)
+
+    cr = httpx.get(
+        f"{GRAPH}/{video_id}/comments",
+        params={
+            "fields": "id,message,created_time,from{id,name}",
+            "order": "reverse_chronological",
+            "limit": 5,
+            "access_token": TOKEN,
+        },
+        timeout=20,
+    )
+
+    print("Comment API status:", cr.status_code)
+    comment_payload = cr.json()
+    comments = comment_payload.get("data", [])
+    print("Comment count sample:", len(comments))
+    print(json.dumps(comment_payload, ensure_ascii=False, indent=2))
+</file>
+
+<file path="fix_vietnamese_addresses.py">
+import re
+import unicodedata
+
+from app.services.database import get_connection
+
+
+BAD_MARKERS = ["Ã", "Â", "Æ", "Ä", "áº", "á»", "�"]
+
+
+def bad_score(text: str) -> int:
+    if not text:
+        return 0
+
+    score = 0
+
+    for marker in BAD_MARKERS:
+        score += text.count(marker) * 10
+
+    # C1 control chars hay xuất hiện khi bị mojibake: \x80-\x9f
+    score += len(re.findall(r"[\u0080-\u009f]", text)) * 20
+
+    return score
+
+
+def try_fix(text):
+    if text is None:
+        return None
+
+    if not isinstance(text, str):
+        return text
+
+    original = text
+    candidates = {original}
+
+    for encoding in ["latin1", "cp1252"]:
+        try:
+            one = original.encode(encoding, errors="ignore").decode("utf-8", errors="ignore")
+            candidates.add(one)
+
+            two = one.encode(encoding, errors="ignore").decode("utf-8", errors="ignore")
+            candidates.add(two)
+        except Exception:
+            pass
+
+    best = min(candidates, key=bad_score)
+    best = unicodedata.normalize("NFC", best)
+    best = re.sub(r"\s+", " ", best).strip()
+
+    return best
+
+
+def fix_table(table, columns):
+    updated = 0
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                select id, {", ".join(columns)}
+                from {table}
+                """
+            )
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                row_id = row[0]
+                values = row[1:]
+
+                changes = {}
+
+                for column, value in zip(columns, values):
+                    fixed = try_fix(value)
+
+                    if fixed != value:
+                        changes[column] = fixed
+
+                if not changes:
+                    continue
+
+                print(f"\n{table} {row_id}")
+                for key, value in changes.items():
+                    print(f"- {key}: {repr(value)}")
+
+                set_sql = ", ".join([f"{column} = %s" for column in changes.keys()])
+                params = list(changes.values()) + [row_id]
+
+                cur.execute(
+                    f"""
+                    update {table}
+                    set {set_sql}
+                    where id = %s
+                    """,
+                    params,
+                )
+
+                updated += 1
+
+            conn.commit()
+
+    print(f"\n{table}: updated {updated} rows")
+
+
+def main():
+    fix_table(
+        "orders",
+        [
+            "customer_name",
+            "customer_address",
+            "fb_name",
+            "province",
+            "district",
+            "ward",
+            "address_detail",
+            "note",
+        ],
+    )
+
+    fix_table(
+        "customers",
+        [
+            "name",
+            "address",
+            "fb_name",
+            "province",
+            "district",
+            "ward",
+            "address_detail",
+            "note",
+        ],
+    )
+
+
+if __name__ == "__main__":
+    main()
+</file>
+
+<file path="fix_vietnamese_mojibake.py">
+from app.services.database import get_connection
+from app.services.text_utils import fix_mojibake_text
+
+
+TABLE_COLUMNS = {
+    "orders": [
+        "customer_name",
+        "customer_phone",
+        "customer_address",
+        "fb_name",
+        "fb_link",
+        "province",
+        "district",
+        "ward",
+        "address_detail",
+        "note",
+    ],
+    "customers": [
+        "name",
+        "phone",
+        "address",
+        "fb_name",
+        "fb_link",
+        "province",
+        "district",
+        "ward",
+        "address_detail",
+        "note",
+    ],
+}
+
+
+def fix_table(table_name, columns):
+    updated_count = 0
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            column_sql = ", ".join(columns)
+
+            cur.execute(
+                f"""
+                select id, {column_sql}
+                from {table_name}
+                """
+            )
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                row_id = row[0]
+                values = row[1:]
+
+                updates = {}
+                for column, value in zip(columns, values):
+                    fixed = fix_mojibake_text(value)
+
+                    if fixed != value:
+                        updates[column] = fixed
+
+                if not updates:
+                    continue
+
+                set_sql = ", ".join([f"{column} = %s" for column in updates.keys()])
+                params = list(updates.values()) + [row_id]
+
+                cur.execute(
+                    f"""
+                    update {table_name}
+                    set {set_sql}
+                    where id = %s
+                    """,
+                    params,
+                )
+
+                updated_count += 1
+
+            conn.commit()
+
+    print(f"{table_name}: updated {updated_count} rows")
+
+
+def main():
+    for table_name, columns in TABLE_COLUMNS.items():
+        fix_table(table_name, columns)
+
+
+if __name__ == "__main__":
+    main()
+</file>
+
+<file path="requirements.txt">
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.14.0
+async-timeout==5.0.1
+betterproto==2.0.0b7
+certifi==2026.6.17
+click==8.4.1
+colorama==0.4.6
+fastapi==0.137.1
+ffmpy==1.0.0
+grpclib==0.4.9
+h11==0.16.0
+h2==4.3.0
+hpack==4.1.0
+httpcore==1.0.9
+httptools==0.8.0
+httpx==0.28.1
+hyperframe==6.1.0
+idna==3.18
+mashumaro==3.22
+multidict==6.7.1
+protobuf==7.35.1
+protobuf3-to-dict==0.1.5
+psycopg==3.3.4
+psycopg-binary==3.3.4
+pydantic==2.13.4
+pydantic_core==2.46.4
+pyee==13.0.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+python-socks==2.8.1
+PyYAML==6.0.3
+six==1.17.0
+starlette==1.3.1
+TikTokLive==6.6.5
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+tzdata==2026.2
+uvicorn==0.49.0
+watchfiles==1.2.0
+websockets==16.0
+websockets_proxy==0.1.3
+</file>
+
+<file path="test_single_comment_from.py">
+import os
+import json
+import httpx
+from dotenv import load_dotenv
+from app.services.database import get_connection
+
+load_dotenv(".env")
+
+TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
+VERSION = os.getenv("FACEBOOK_GRAPH_VERSION", "v25.0")
+GRAPH = f"https://graph.facebook.com/{VERSION}"
+
+SESSION_ID = "8b5537ac-dc0f-4f93-a716-b11255d4040d"
+
+with get_connection() as conn:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select external_comment_id, message
+            from live_comments
+            where session_id = %s
+              and external_comment_id is not null
+            order by created_at asc
+            limit 5
+            """,
+            (SESSION_ID,),
+        )
+
+        rows = cur.fetchall()
+
+for comment_id, message in rows:
+    print("=" * 80)
+    print("Comment ID:", comment_id)
+    print("Message:", message)
+
+    url = f"{GRAPH}/{comment_id}"
+
+    response = httpx.get(
+        url,
+        params={
+            "fields": "id,from{id,name,picture},message,created_time,permalink_url",
+            "access_token": TOKEN,
+        },
+        timeout=20,
+    )
+
+    print("Status:", response.status_code)
+    print(json.dumps(response.json(), ensure_ascii=False, indent=2))
+</file>
+
+<file path="test_tiktok_live.py">
+import sys
+from TikTokLive import TikTokLiveClient
+from TikTokLive.events import ConnectEvent, CommentEvent, DisconnectEvent
+
+username = sys.argv[1] if len(sys.argv) > 1 else "vuonlanthanhnha"
+username = username.replace("@", "").strip()
+
+client = TikTokLiveClient(unique_id=f"@{username}")
+
+
+@client.on(ConnectEvent)
+async def on_connect(event: ConnectEvent):
+    print("✅ Đã kết nối TikTok Live")
+    print("Room ID:", getattr(event, "room_id", None))
+
+
+@client.on(CommentEvent)
+async def on_comment(event: CommentEvent):
+    nickname = getattr(event.user, "nickname", "Khách TikTok")
+    unique_id = getattr(event.user, "unique_id", "")
+    comment = getattr(event, "comment", "")
+
+    print(f"💬 {nickname} @{unique_id}: {comment}")
+
+
+@client.on(DisconnectEvent)
+async def on_disconnect(event: DisconnectEvent):
+    print("❌ Đã ngắt kết nối TikTok Live")
+
+
+if __name__ == "__main__":
+    print(f"Đang kết nối TikTok Live: @{username}")
+    print("Lưu ý: tài khoản phải đang LIVE public.")
+    client.run()
+</file>
+
+</files>
