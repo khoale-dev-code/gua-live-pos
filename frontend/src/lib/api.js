@@ -1,5 +1,5 @@
-import { clearAuthToken, getAuthToken } from "./authStorage";
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+﻿import { clearAuthToken, getAuthToken } from "./authStorage";
+const API_URL = import.meta.env.VITE_API_URL || "https://gua-live-pos-backend.onrender.com";
 
 const memoryCache = new Map();
 const inflightRequests = new Map();
@@ -131,7 +131,7 @@ function clearCache(pathPrefix = "") {
 }
 
 async function readApiError(response) {
-  const fallbackMessage = `API lỗi ${response.status}`;
+  const fallbackMessage = `API lá»—i ${response.status}`;
 
   try {
     const payload = await response.json();
@@ -642,3 +642,4 @@ api.drawLiveGameWinner = async (sessionId, payload) => {
 
 api.getLiveGameSessions = () =>
   request("/api/live-games/sessions");
+
