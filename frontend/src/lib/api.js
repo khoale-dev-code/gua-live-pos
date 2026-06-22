@@ -1,5 +1,9 @@
 ﻿import { clearAuthToken, getAuthToken } from "./authStorage";
-const API_URL = import.meta.env.VITE_API_URL || "https://gua-live-pos-backend.onrender.com";
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://gua-live-pos-backend.onrender.com"
+).replace(/\/$/, "");
 
 const memoryCache = new Map();
 const inflightRequests = new Map();
