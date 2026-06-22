@@ -179,18 +179,17 @@ async function request(path, options = {}) {
     headers: {
       Accept: "application/json",
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-      ...(getAuthToken()
-        ? {
-            Authorization: `Bearer ${getAuthToken()}`,
-          }
-        : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
-      if (response.status === 401 && path !== "/api/auth/login") {
+    const errorMessage = await readApiError(response);
+
+    if (response.status === 401) {
+      if (path === "/api/auth/me") {
         clearAuthToken();
 
         if (window.location.pathname !== "/login") {
@@ -198,12 +197,17 @@ async function request(path, options = {}) {
         }
       }
 
-    throw new Error(await readApiError(response));
+      throw new Error(errorMessage || "Phiên đăng nhập không hợp lệ hoặc API yêu cầu đăng nhập lại.");
+    }
+
+    throw new Error(errorMessage || "API request failed");
   }
 
   const text = await response.text();
 
-  if (!text) return null;
+  if (!text) {
+    return null;
+  }
 
   try {
     return JSON.parse(text);
