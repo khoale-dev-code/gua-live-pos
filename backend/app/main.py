@@ -9,6 +9,7 @@ app = FastAPI(title="GUA Live POS API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://gua-live-pos.vercel.app",
         "http://localhost:5173",
     ],
     allow_credentials=True,
