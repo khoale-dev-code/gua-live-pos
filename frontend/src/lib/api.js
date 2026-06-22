@@ -1,4 +1,4 @@
-﻿import { clearAuthToken, getAuthToken } from "./authStorage";
+import { clearAuthToken, getAuthToken } from "./authStorage";
 const API_URL = (
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_API_BASE_URL ||
@@ -171,6 +171,8 @@ async function request(path, options = {}) {
     body,
     headers = {},
   } = options;
+
+  const authToken = getAuthToken();
 
   const response = await fetch(buildUrl(path), {
     method,
